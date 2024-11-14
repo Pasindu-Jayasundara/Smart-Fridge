@@ -7,7 +7,6 @@ export function InputField({ params }) {
     const [getSecureTextEntry, setSecureTextEntry] = useState(false);
     const [getInputMode, setInputMode] = useState("text");
     const [getMaxLength, setMaxLength] = useState(10);
-    // const [getInputValue, setInputValue] = useState("");
 
     useEffect(() => {
         setLable(params.lableText)
@@ -17,7 +16,6 @@ export function InputField({ params }) {
     }, [params])
 
     const handleInputChange = (value) => {
-        // setInputValue(value);
         if (params.func) {
             params.func(value);
         }
@@ -43,8 +41,6 @@ export function InputField({ params }) {
 const styles = StyleSheet.create({
     view: {
         width: '100%',
-        // paddingHorizontal: 10, 
-        // backgroundColor:"blue" 
     },
     input: {
         width: '100%',
