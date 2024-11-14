@@ -1,5 +1,6 @@
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Link } from 'expo-router';
 
 export default function index() {
 
@@ -13,18 +14,18 @@ export default function index() {
                         <Image source={logoIcon} style={styles.logo} />
                         <View style={styles.textView}>
                             <Text style={styles.text1}>LogIn</Text>
-                            <Text style={styles.text2}>Welcome back to ZapChat</Text>
-                            <Text style={[styles.text2, styles.text3]}> Let's connect together !</Text>
+                            <Text style={styles.text2}>Welcome back to Smart Fridge</Text>
+                            <Text style={[styles.text2, styles.text3]}> Let's get started !</Text>
                         </View>
                     </View>
 
                     <View style={styles.secondView}>
                         <View style={styles.fields}>
-                            <InputField params={{ lableText: "Mobile", inputMode: "tel", secureTextEntry: false, func: setMobile }} />
+                            <InputField params={{ lableText: "Fridge Code", inputMode: "text", secureTextEntry: false, func: setFridgeCode }} />
                             <InputField params={{ lableText: "Password", inputMode: "text", secureTextEntry: true, func: setPassword }} />
                             <Button text={ref.current} style={{ marginTop: 18 }} func={request} />
                             <Text style={styles.linkText}>
-                                New to ZapChat?
+                                New to Smart Fridge?
                                 <Link href={"/register"} style={styles.link}> Register Now</Link>
                             </Text>
                         </View>
