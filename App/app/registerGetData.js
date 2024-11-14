@@ -46,8 +46,7 @@ export default function registerGetData() {
                 if (obj.success) {
                     try {
                         await AsyncStorage.setItem("user", obj.data);
-                        await AsyncStorage.setItem("verified", JSON.stringify(false));
-                        router.push("/verifyRegister");
+                        router.push("/");
                     } catch (error) {
                         Alert.alert("Something Went Wrong");
                         console.log(error);
