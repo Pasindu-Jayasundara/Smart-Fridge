@@ -18,7 +18,7 @@ export default function register() {
                     <Text style={styles.text2}>Welcome to Smart Fridge</Text>
                     <Text style={[styles.text2, styles.text3]}> Stay connected with your Fridge</Text>
                 </View>
-                <Button text={"Get Started"} style={{marginTop: 50,width: "72%"}} func={()=>{router.push("/registerGetData")}} />
+                <Button text={"Get Started"} style={{marginTop: 50,width: "72%",backgroundColor:"#0d5e18"}} func={()=>{router.push("/registerGetData")}} />
                 <Text style={styles.linkText}>
                     Already have an Account?
                     <Link href={"/"} style={styles.link}> LogIn</Link>
@@ -31,10 +31,9 @@ export default function register() {
 
 const styles = StyleSheet.create({
     link: {
-        color: "#ff5b6b"
+        color: "#0d5e18"
     },
     linkText: {
-        color: "#919190",
         alignSelf: "center",
         marginTop: 18
     },
@@ -48,14 +47,14 @@ const styles = StyleSheet.create({
         height: 150
     },
     text3: {
-        marginTop: -22,
+        marginTop: -27,
         fontSize: 16,
-        color: "#ff5b6b",
         width: 300
     },
     text2: {
-        fontSize: 19,
-        textAlign: "center"
+        fontSize: 17,
+        textAlign: "center",
+        color: "#0d5e18",
     },
     text1: {
         fontSize: 30,

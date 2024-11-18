@@ -5,6 +5,9 @@ import { Button } from "../components/Button";
 import { router } from "expo-router";
 import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "expo-image";
+
+const logoIcon = require("../assets/fr.png");
 
 export default function registerGetData() {
     const [formData, setFormData] = useState({
@@ -64,14 +67,17 @@ export default function registerGetData() {
 
     return (
         <SafeAreaView style={styles.safearea}>
-            <Text style={styles.title}>Fill Your Details</Text>
             <ScrollView contentContainerStyle={styles.scrolView}>
                 <View style={styles.container}>
+                    <Image source={logoIcon} style={styles.logo} />
+
+                    <Text style={styles.title}>Setup Your Fridge</Text>
+
                     <InputField params={{ lableText: "Fridge Code", inputMode: "text", secureTextEntry: false, func: (value) => handleInputChange("mobile", value) }} />
                     <InputField params={{ lableText: "Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("password", value) }} />
                     <InputField params={{ lableText: "Re-type Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("reTypePassword", value) }} />
 
-                    <Button text={"Next"} style={{ marginTop: 50, width: "100%" }} func={request} />
+                    <Button text={"Next"} style={{ marginTop: 50, width: "100%", backgroundColor: "#0d5e18" }} func={request} />
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -79,26 +85,32 @@ export default function registerGetData() {
 }
 
 const styles = StyleSheet.create({
+    logo: {
+        width: 100,
+        height: 100,
+        marginBottom: 20
+    },
     container: {
         flex: 1,
         alignItems: "center",
         width: "80%",
-        rowGap: 22
+        rowGap: 22,
+        justifyContent: "center",
     },
     title: {
-        color: "#ff5b6b",
+        color: "#0d5e18",
         fontSize: 23,
         fontWeight: "bold",
-        paddingLeft: 35,
-        paddingVertical: 10
+        paddingVertical: 10,
+        alignSelf: "flex-start"
     },
     safearea: {
         flex: 1
     },
     scrolView: {
         flexGrow: 1,
-        justifyContent: "flex-start",
+        justifyContent: "center",
         paddingTop: 30,
-        alignItems: "center"
+        alignItems: "center",
     }
 });

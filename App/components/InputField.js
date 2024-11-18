@@ -32,7 +32,7 @@ export function InputField({ params }) {
                 onChangeText={text=>handleInputChange(text)}
                 maxLength={getMaxLength}
                 style={styles.input}
-                cursorColor={"#ff5b6b"}
+                cursorColor={"#0d5e18"}
                 secureTextEntry={getSecureTextEntry}
                 inputMode={getInputMode}></TextInput>
         </View>
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         height: 40,
         paddingHorizontal: 10,
-        color: "black"
+        color: "green"
     },
     label: {
         fontSize: 18,
