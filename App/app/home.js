@@ -110,7 +110,7 @@ export default function home() {
                 } />
             ) : null}
 
-            <Header fridgeCode={getCode} />
+            <Header fridgeCode={getCode} func={()=>{router.push("/profile")}}/>
 
             <View style={styles.dashboard}>
 
