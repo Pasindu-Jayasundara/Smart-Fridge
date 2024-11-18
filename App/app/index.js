@@ -6,8 +6,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import CustomAlert from "../components/CustomAlert";
+import * as SplashScreen from 'expo-splash-screen';
 
 const logoIcon = require("../assets/fridge.png");
+
+SplashScreen.preventAutoHideAsync();
 
 export default function index() {
     const [formData, setFormData] = useState({
@@ -32,10 +35,13 @@ export default function index() {
             let fridgeCode = await AsyncStorage.getItem("fridgeCode");
             if (fridgeCode) {
                 router.replace("/home");
+                SplashScreen.hideAsync();
+            }else{
+                SplashScreen.hideAsync();
             }
         };
         check();
-    },[]);
+    }, []);
 
     async function request() {
 
@@ -83,7 +89,9 @@ export default function index() {
                 if (obj.isSuccess) {
                     await AsyncStorage.setItem("fridgeCode", JSON.stringify(fridgeCode));
 
-                    router.replace("/home");
+                    router.replace("/home",{
+                        state: JSON.stringify(obj.data)
+                    });
                 } else {
                     setShowCustomAlert(true);
                     setCustomAlertText(obj.data);

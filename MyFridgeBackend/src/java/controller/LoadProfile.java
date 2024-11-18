@@ -103,7 +103,6 @@ public class LoadProfile extends HttpServlet {
             // food status
             Criteria foodStatusCriteria = hibernateSession.createCriteria(Food_status.class);
             foodStatusCriteria.add(Restrictions.eq("fridge", fridge));
-            foodStatusCriteria.addOrder(Order.desc("date"));
             foodStatusCriteria.setMaxResults(1);
             Food_status foodStatus = (Food_status) foodStatusCriteria.uniqueResult();
 
@@ -118,7 +117,6 @@ public class LoadProfile extends HttpServlet {
             // tempreature
             Criteria tempreatureCriteria = hibernateSession.createCriteria(Tempreature.class);
             tempreatureCriteria.add(Restrictions.eq("fridge", fridge));
-            tempreatureCriteria.addOrder(Order.desc("date"));
             tempreatureCriteria.setMaxResults(1);
             Tempreature tempreature = (Tempreature) tempreatureCriteria.uniqueResult();
 
