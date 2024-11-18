@@ -1,7 +1,7 @@
 import { ScrollView, Text, View, Alert, Image, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from 'expo-router';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
@@ -26,6 +26,16 @@ export default function index() {
             [name]: value
         });
     };
+
+    useEffect(() => {
+        const check = async () => {
+            let fridgeCode = await AsyncStorage.getItem("fridgeCode");
+            if (fridgeCode) {
+                router.replace("/home");
+            }
+        };
+        check();
+    },[]);
 
     async function request() {
 
@@ -69,22 +79,19 @@ export default function index() {
 
                 console.log("response: ", response);
 
-                // let obj = await response.json();
-                // if (obj.success) {
-                //     await AsyncStorage.setItem("user", JSON.stringify(obj.data.user));
-                //     await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data.profileImage));
-                //     await AsyncStorage.setItem("profileAbout", JSON.stringify(obj.data.profileAbout));
+                let obj = await response.json();
+                if (obj.isSuccess) {
+                    await AsyncStorage.setItem("fridgeCode", JSON.stringify(fridgeCode));
 
-                //     router.replace("/home");
-                // } else {
-                //     if (obj.data === "Please LogIn") {
-                //         await AsyncStorage.removeItem("verified");
-                //         await AsyncStorage.removeItem("user");
-                //         router.replace("/");
-                //     } else {
-                //         Alert.alert(obj.data);
-                //     }
-                // }
+                    router.replace("/home");
+                } else {
+                    setShowCustomAlert(true);
+                    setCustomAlertText(obj.data);
+                    setCustomAlertIcon("❗");
+                    setButtonText("Register");
+                }
+
+
             } else {
                 setShowCustomAlert(true);
                 setCustomAlertText("Please Try Again Later");
