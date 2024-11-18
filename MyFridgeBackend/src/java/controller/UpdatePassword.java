@@ -1,87 +1,71 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
+import com.google.gson.Gson;
+import dto.Response_DTO;
+import entity.Fridge;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import model.HibernateUtil;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
+import org.jasypt.util.password.StrongPasswordEncryptor;
 
-/**
- *
- * @author Asus
- */
 @WebServlet(name = "UpdatePassword", urlPatterns = {"/UpdatePassword"})
 public class UpdatePassword extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet UpdatePassword</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet UpdatePassword at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        String fridgeCode = (String) request.getAttribute("fridgeCode");
+        String oldPassword = (String) request.getAttribute("oldPassword");
+        String newPassword = (String) request.getAttribute("newPassword");
+
+        Gson gson = new Gson();
+        Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+
+        boolean isSuccess = true;
+        String message = "";
+
+        Criteria fridgeCriteria = hibernateSession.createCriteria(Fridge.class);
+        fridgeCriteria.add(Restrictions.and(
+                Restrictions.eq("code", fridgeCode),
+                Restrictions.eq("password", oldPassword)
+        ));
+        Fridge fridge = (Fridge) fridgeCriteria.uniqueResult();
+
+        if (fridge != null) {
+
+            StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
+            String encryptedPassword = passwordEncryptor.encryptPassword(newPassword);
+
+            if (passwordEncryptor.checkPassword(newPassword, fridge.getPassword())) {
+                // correct!
+                isSuccess = false;
+                message = "New-Password Cannot be Same As Old-Password";
+            } else {
+                // bad login!\
+                fridge.setPassword(encryptedPassword);
+
+                hibernateSession.update(fridge);
+                hibernateSession.beginTransaction().commit();
+                
+                message = "Password Update Success";
+            }
+
+        } else {
+            isSuccess = false;
         }
-    }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
+        hibernateSession.close();
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+        Response_DTO response_DTO = new Response_DTO(isSuccess, gson.toJsonTree(message));
+        response.setContentType("application/json");
+        response.getWriter().write(gson.toJson(response_DTO));
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 
 }
