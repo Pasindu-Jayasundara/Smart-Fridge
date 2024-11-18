@@ -24,8 +24,8 @@ public class Fridge implements Serializable{
     @Column(name = "datetime",nullable = false)
     private Date datetime;
     
-    @Column(name = "password",nullable = false)
-    private byte[] password;
+    @Column(name = "password",nullable = false,length = 250)
+    private String password;
     
     @Column(name = "salt",nullable = false)
     private byte[] salt;
@@ -57,11 +57,11 @@ public class Fridge implements Serializable{
         this.datetime = datetime;
     }
 
-    public byte[] getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(byte[] password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
@@ -72,6 +72,6 @@ public class Fridge implements Serializable{
     public void setSalt(byte[] salt) {
         this.salt = salt;
     }
-    
-    
+
+   
 }

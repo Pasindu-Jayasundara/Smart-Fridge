@@ -17,6 +17,7 @@ import model.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.jasypt.util.password.StrongPasswordEncryptor;
 
 @WebServlet(name = "Login", urlPatterns = {"/Login"})
 public class Login extends HttpServlet {
@@ -36,74 +37,78 @@ public class Login extends HttpServlet {
 
         // fridge
         Criteria fridgeCriteria = hibernateSession.createCriteria(Fridge.class);
-        fridgeCriteria.add(Restrictions.and(
-                Restrictions.eq("code", fridgeCode),
-                Restrictions.eq("password", password))
-        );
+        fridgeCriteria.add(Restrictions.eq("code", fridgeCode));
         Fridge fridge = (Fridge) fridgeCriteria.uniqueResult();
 
         if (fridge != null) {
-            replyObj.add("fridge", gson.toJsonTree(fridge));
-            message = "Login Success";
-            isSuccess = true;
+
+            StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
+            if (passwordEncryptor.checkPassword(password, fridge.getPassword())) {
+                // correct!
+                replyObj.add("fridge", gson.toJsonTree(fridge));
+                message = "Login Success";
+                isSuccess = true;
+            } else {
+                // bad login!\
+                message = "Login Failed";
+            }
+
         } else {
             message = "Invalid Details";
         }
 
-        if (fridge != null) {
+        if (fridge != null && isSuccess) {
 
             // rack weight
             Criteria rackWeightCriteria = hibernateSession.createCriteria(Rack_weight.class);
             rackWeightCriteria.add(Restrictions.eq("fridge", fridge));
             List<Rack_weight> rackWeightList = rackWeightCriteria.list();
             if (!rackWeightList.isEmpty()) {
-                
+
                 JsonObject rackWeightObj = new JsonObject();
                 for (Rack_weight rack_weight : rackWeightList) {
-                    if(rack_weight.getRack_number().getRack_number()==1){
-                        
+                    if (rack_weight.getRack_number().getRack_number() == 1) {
+
                         JsonObject rackOne = new JsonObject();
                         rackOne.addProperty("weight", rack_weight.getWeight());
-                        
+
                         rackWeightObj.add("rackOne", gson.toJsonTree(rackOne));
-                        
-                    }else{
+
+                    } else {
                         JsonObject rackTwo = new JsonObject();
                         rackTwo.addProperty("weight", rack_weight.getWeight());
-                        
+
                         rackWeightObj.add("rackTwo", gson.toJsonTree(rackTwo));
                     }
                 }
                 replyObj.add("rackWeight", rackWeightObj);
             }
-            
+
             // power consumption
             Criteria powerConsumptionCriteria = hibernateSession.createCriteria(Power_consumption.class);
             powerConsumptionCriteria.add(Restrictions.eq("fridge", fridge));
             List<Power_consumption> powerConsumptionList = powerConsumptionCriteria.list();
             if (!powerConsumptionList.isEmpty()) {
-                
+
                 JsonObject powerConsumptionObj = new JsonObject();
                 for (Power_consumption power_consumption : powerConsumptionList) {
-                    if(rack_weight.getRack_number().getRack_number()==1){
-                        
+                    if (rack_weight.getRack_number().getRack_number() == 1) {
+
                         JsonObject rackOne = new JsonObject();
                         rackOne.addProperty("weight", rack_weight.getWeight());
-                        
+
                         rackWeightObj.add("rackOne", gson.toJsonTree(rackOne));
-                        
-                    }else{
+
+                    } else {
                         JsonObject rackTwo = new JsonObject();
                         rackTwo.addProperty("weight", rack_weight.getWeight());
-                        
+
                         rackWeightObj.add("rackTwo", gson.toJsonTree(rackTwo));
                     }
                 }
                 replyObj.add("rackWeight", rackWeightObj);
             }
-            
-            
-            
+
         }
 
         if (isSuccess) {
