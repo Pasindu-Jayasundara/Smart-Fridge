@@ -50,22 +50,25 @@ export default function index() {
             });
 
             if (response.ok) {
-                let obj = await response.json();
-                if (obj.success) {
-                    await AsyncStorage.setItem("user", JSON.stringify(obj.data.user));
-                    await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data.profileImage));
-                    await AsyncStorage.setItem("profileAbout", JSON.stringify(obj.data.profileAbout));
 
-                    router.replace("/home");
-                } else {
-                    if (obj.data === "Please LogIn") {
-                        await AsyncStorage.removeItem("verified");
-                        await AsyncStorage.removeItem("user");
-                        router.replace("/");
-                    } else {
-                        Alert.alert(obj.data);
-                    }
-                }
+                console.log("response: ", response);
+
+                // let obj = await response.json();
+                // if (obj.success) {
+                //     await AsyncStorage.setItem("user", JSON.stringify(obj.data.user));
+                //     await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data.profileImage));
+                //     await AsyncStorage.setItem("profileAbout", JSON.stringify(obj.data.profileAbout));
+
+                //     router.replace("/home");
+                // } else {
+                //     if (obj.data === "Please LogIn") {
+                //         await AsyncStorage.removeItem("verified");
+                //         await AsyncStorage.removeItem("user");
+                //         router.replace("/");
+                //     } else {
+                //         Alert.alert(obj.data);
+                //     }
+                // }
             } else {
                 Alert.alert("Please Try Again Later");
             }
