@@ -26,9 +26,6 @@ public class Fridge implements Serializable{
     
     @Column(name = "password",nullable = false,length = 250)
     private String password;
-    
-    @Column(name = "salt",nullable = false)
-    private byte[] salt;
 
     public Fridge() {
     }
@@ -64,14 +61,5 @@ public class Fridge implements Serializable{
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public byte[] getSalt() {
-        return salt;
-    }
-
-    public void setSalt(byte[] salt) {
-        this.salt = salt;
-    }
-
    
 }

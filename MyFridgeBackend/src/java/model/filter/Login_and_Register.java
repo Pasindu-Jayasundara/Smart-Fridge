@@ -14,8 +14,8 @@ import javax.servlet.annotation.WebFilter;
 import model.Validation;
 
 
-@WebFilter(urlPatterns = {"/Login"})
-public class LoginFilter implements Filter{
+@WebFilter(urlPatterns = {"/Login","/Register"})
+public class Login_and_Register implements Filter{
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
