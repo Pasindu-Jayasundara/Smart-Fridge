@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import { Svg, Circle, Text as SvgText } from 'react-native-svg';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function PowerUsage({usage,date}) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Power Usage</Text>
+            <Text style={styles.label}>Power Usage <Icon name="info-circle" size={15} color="grey" /></Text>
             <Text style={styles.label2}>{usage} W</Text>
         </View>
     );
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
         fontSize: 16,
         fontWeight: 'bold',
-        width:"100%"
+        width:"100%",
     },
     label2: {
         fontSize: 30,
