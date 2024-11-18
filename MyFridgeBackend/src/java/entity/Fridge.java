@@ -61,5 +61,5 @@ public class Fridge implements Serializable{
     public void setPassword(String password) {
         this.password = password;
     }
-   
+
 }

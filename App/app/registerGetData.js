@@ -10,7 +10,7 @@ export default function registerGetData() {
     const [formData, setFormData] = useState({
         fridgeCode: "",
         password: "",
-        reTypePassword: ""
+        reTypePassword: "",
     });
 
     const handleInputChange = (name, value) => {
