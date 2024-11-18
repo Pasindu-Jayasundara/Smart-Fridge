@@ -24,11 +24,11 @@ public class Door_status implements Serializable{
     @Column(name = "is_door_open",nullable = false)
     private boolean is_door_open;
     
-    @Column(name = "from",nullable = false)
-    private Date from;
+    @Column(name = "date",nullable = false)
+    private Date date;
     
-    @Column(name = "to",nullable = false)
-    private Date to;
+    @Column(name = "times",nullable = false)
+    private int times;
     
     @ManyToOne
     @JoinColumn(name = "fridge_id")
@@ -53,20 +53,20 @@ public class Door_status implements Serializable{
         this.is_door_open = is_door_open;
     }
 
-    public Date getFrom() {
-        return from;
+    public Date getDate() {
+        return date;
     }
 
-    public void setFrom(Date from) {
-        this.from = from;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    public Date getTo() {
-        return to;
+    public int getTimes() {
+        return times;
     }
 
-    public void setTo(Date to) {
-        this.to = to;
+    public void setTimes(int times) {
+        this.times = times;
     }
 
     public Fridge getFridge() {
@@ -76,7 +76,6 @@ public class Door_status implements Serializable{
     public void setFridge(Fridge fridge) {
         this.fridge = fridge;
     }
-    
-    
+
     
 }

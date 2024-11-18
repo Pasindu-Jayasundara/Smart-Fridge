@@ -3,9 +3,12 @@ package controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
+import entity.Door_status;
+import entity.Food_status;
 import entity.Fridge;
 import entity.Power_consumption;
 import entity.Rack_weight;
+import entity.Tempreature;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -16,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 
@@ -87,42 +91,75 @@ public class Login extends HttpServlet {
             // power consumption
             Criteria powerConsumptionCriteria = hibernateSession.createCriteria(Power_consumption.class);
             powerConsumptionCriteria.add(Restrictions.eq("fridge", fridge));
-            List<Power_consumption> powerConsumptionList = powerConsumptionCriteria.list();
-            if (!powerConsumptionList.isEmpty()) {
+            powerConsumptionCriteria.addOrder(Order.desc("date"));
+            powerConsumptionCriteria.setMaxResults(1);
+            Power_consumption powerConsumption = (Power_consumption) powerConsumptionCriteria.uniqueResult();
+
+            if (powerConsumption != null) {
 
                 JsonObject powerConsumptionObj = new JsonObject();
-                for (Power_consumption power_consumption : powerConsumptionList) {
-                    if (rack_weight.getRack_number().getRack_number() == 1) {
+                powerConsumptionObj.add("date", gson.toJsonTree(powerConsumption.getDate()));
+                powerConsumptionObj.addProperty("power", powerConsumption.getPower());
 
-                        JsonObject rackOne = new JsonObject();
-                        rackOne.addProperty("weight", rack_weight.getWeight());
+                replyObj.add("powerConsumption", powerConsumptionObj);
+            }
+            
+            // door status
+            Criteria doorStatusCriteria = hibernateSession.createCriteria(Door_status.class);
+            doorStatusCriteria.add(Restrictions.eq("fridge", fridge));
+            doorStatusCriteria.addOrder(Order.desc("date"));
+            doorStatusCriteria.setMaxResults(1);
+            Door_status doorStatus = (Door_status) doorStatusCriteria.uniqueResult();
 
-                        rackWeightObj.add("rackOne", gson.toJsonTree(rackOne));
+            if (doorStatus != null) {
 
-                    } else {
-                        JsonObject rackTwo = new JsonObject();
-                        rackTwo.addProperty("weight", rack_weight.getWeight());
+                JsonObject doorStatusObj = new JsonObject();
+                doorStatusObj.add("date", gson.toJsonTree(doorStatus.getDate()));
+                doorStatusObj.addProperty("times", doorStatus.getTimes());
+                doorStatusObj.addProperty("isNowOpen", doorStatus.isIs_door_open());
 
-                        rackWeightObj.add("rackTwo", gson.toJsonTree(rackTwo));
-                    }
-                }
-                replyObj.add("rackWeight", rackWeightObj);
+                replyObj.add("doorStatus", doorStatusObj);
+            }
+            
+            // food status
+            Criteria foodStatusCriteria = hibernateSession.createCriteria(Food_status.class);
+            foodStatusCriteria.add(Restrictions.eq("fridge", fridge));
+            foodStatusCriteria.addOrder(Order.desc("date"));
+            foodStatusCriteria.setMaxResults(1);
+            Food_status foodStatus = (Food_status) foodStatusCriteria.uniqueResult();
+
+            if (foodStatus != null) {
+
+                JsonObject foodStatusObj = new JsonObject();
+                foodStatusObj.addProperty("foodStatus", foodStatus.getFood_status());
+
+                replyObj.add("foodStatus", foodStatusObj);
+            }
+
+            // tempreature
+            Criteria tempreatureCriteria = hibernateSession.createCriteria(Tempreature.class);
+            tempreatureCriteria.add(Restrictions.eq("fridge", fridge));
+            tempreatureCriteria.addOrder(Order.desc("date"));
+            tempreatureCriteria.setMaxResults(1);
+            Tempreature tempreature = (Tempreature) tempreatureCriteria.uniqueResult();
+
+            if (tempreature != null) {
+
+                JsonObject tempreatureObj = new JsonObject();
+                tempreatureObj.addProperty("tempreature", tempreature.getTemp());
+
+                replyObj.add("tempreature", tempreatureObj);
             }
 
         }
 
-        if (isSuccess) {
-            jo.add("fridge", gson.toJsonTree(fridge));
-
-            jo.addProperty("profileImage", user.getProfile_image());
-            jo.addProperty("profileAbout", user.getAbout());
-        } else {
-            jo.addProperty("msg", message);
+        if (!isSuccess) {
+            replyObj.addProperty("msg", message);
         }
 
         hibernateSession.close();
 
-        Response_DTO response_DTO = new Response_DTO(isSuccess, gson.toJsonTree(jo));
+        Response_DTO response_DTO = new Response_DTO(isSuccess, gson.toJsonTree(replyObj));
 
         response.setContentType("application/json");
         response.getWriter().write(gson.toJson(response_DTO));
