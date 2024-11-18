@@ -4,7 +4,7 @@ import { Button } from "../components/Button";
 import { Link, router } from "expo-router";
 import {Image} from "expo-image";
 
-const logoIcon = require("../assets/images/logo.gif");
+const logoIcon = require("../assets/fridge.png");
 
 export default function register() {
 

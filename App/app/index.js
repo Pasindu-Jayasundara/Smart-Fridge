@@ -6,6 +6,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 
+const logoIcon = require("../assets/fridge.png");
+
 export default function index() {
     const [formData, setFormData] = useState({
         fridgeCode: "",
@@ -89,7 +91,7 @@ export default function index() {
                         <View style={styles.textView}>
                             <Text style={styles.text1}>LogIn</Text>
                             <Text style={styles.text2}>Welcome back to Smart Fridge</Text>
-                            <Text style={[styles.text2, styles.text3]}> Let's get started !</Text>
+                            <Text style={styles.text2}> Let's get started !</Text>
                         </View>
                     </View>
 
@@ -97,7 +99,12 @@ export default function index() {
                         <View style={styles.fields}>
                             <InputField params={{ lableText: "Fridge Code", inputMode: "text", secureTextEntry: false, func: (value) => handleInputChange("fridgeCode", value) }} />
                             <InputField params={{ lableText: "Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("password", value) }} />
-                            <Button text={buttonText} style={{ marginTop: 50, width: "100%" }} func={request} />
+                            <Button text={buttonText} style={{ marginTop: 50, width: "100%",backgroundColor:"#0d5e18" }} func={request} />
+
+                            <Text style={styles.linkText}>
+                                New to ZapChat?
+                                <Link href={"/register"} style={styles.link}> Register Now</Link>
+                            </Text>
                         </View>
                     </View>
                 </View>
@@ -107,11 +114,20 @@ export default function index() {
 }
 
 const styles = StyleSheet.create({
+    link: {
+        color: "#0d5e18",
+    },
+    linkText: {
+        color: "black",
+        alignSelf: "center"
+    },
     safeAreaView: {
         flex: 1,
     },
     scrollView: {
         flexGrow: 1,
+        justifyContent: 'center',   
+        alignItems: 'center',
     },
     container: {
         paddingHorizontal: 20,
@@ -126,21 +142,22 @@ const styles = StyleSheet.create({
     },
     textView: {
         alignItems: 'center',
+        marginTop: 20,
     },
     text1: {
         fontSize: 24,
         fontWeight: 'bold',
+        marginBottom: 30,
     },
     text2: {
         fontSize: 16,
-    },
-    text3: {
-        marginTop: 10,
+        color:"#0d5e18"
     },
     secondView: {
         marginTop: 20,
     },
     fields: {
         alignItems: 'center',
+        gap: 20,
     }
 });

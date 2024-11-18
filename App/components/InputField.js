@@ -7,12 +7,14 @@ export function InputField({ params }) {
     const [getSecureTextEntry, setSecureTextEntry] = useState(false);
     const [getInputMode, setInputMode] = useState("text");
     const [getMaxLength, setMaxLength] = useState(10);
+    const [getTextColor, setTextColor] = useState("black");
 
     useEffect(() => {
         setLable(params.lableText)
         setSecureTextEntry(params.secureTextEntry)
         setInputMode(params.inputMode)
         setMaxLength(params.maxLength)
+        setTextColor(params.textColor)
     }, [params])
 
     const handleInputChange = (value) => {
@@ -24,7 +26,7 @@ export function InputField({ params }) {
 
     return (
         <View style={styles.view}>
-            <Text style={styles.label}>{getLable}</Text>
+            <Text style={[styles.label,{color:getTextColor}]}>{getLable}</Text>
             <TextInput
                 value={params.getFunc}
                 onChangeText={text=>handleInputChange(text)}
@@ -49,10 +51,9 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         height: 40,
         paddingHorizontal: 10,
-        color: "#ff5b6b"
+        color: "black"
     },
     label: {
-        color: "black",
         fontSize: 18,
         marginBottom: 5,
     },
