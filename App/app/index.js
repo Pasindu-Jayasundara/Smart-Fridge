@@ -5,6 +5,7 @@ import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
+import CustomAlert from "../components/CustomAlert";
 
 const logoIcon = require("../assets/fridge.png");
 
@@ -15,6 +16,10 @@ export default function index() {
     });
     const [buttonText, setButtonText] = useState("Let's Go");
 
+    const [getShowCustomAlert, setShowCustomAlert] = useState(false);
+    const [getCustomAlertText, setCustomAlertText] = useState("");
+    const [getCustomAlertIcon, setCustomAlertIcon] = useState("");
+
     const handleInputChange = (name, value) => {
         setFormData({
             ...formData,
@@ -23,18 +28,27 @@ export default function index() {
     };
 
     async function request() {
+
         setButtonText("Wait ...");
 
         const { fridgeCode, password } = formData;
 
         if (fridgeCode.trim().length === 0) {
-            Alert.alert("Fridge Code is required");
+
+            setShowCustomAlert(true);
+            setCustomAlertText("Fridge Code is required");
+            setCustomAlertIcon("❗");
+
             setButtonText("Let's Go");
             return;
         }
 
         if (password.trim().length < 8) {
-            Alert.alert("Password must be between 8-20 letters");
+
+            setShowCustomAlert(true);
+            setCustomAlertText("Password must be between 8-20 letters");
+            setCustomAlertIcon("❗");
+
             setButtonText("Let's Go");
             return;
         }
@@ -83,7 +97,27 @@ export default function index() {
     }
 
     return (
+
         <SafeAreaView style={styles.safeAreaView}>
+
+        {getShowCustomAlert?(
+            <CustomAlert params={
+                { 
+                    icon: getCustomAlertIcon, 
+                    iconType: "text", 
+                    message: getCustomAlertText, 
+                    iconBgColor: "white", 
+                    buttonCount: 1, 
+                    button1Color: "orange", 
+                    button1Text: "Update", 
+                    button2Color: "green", 
+                    button2Text: "OK",
+                    button1Func:()=>{setShowCustomAlert(false)},
+                    button2Func:()=>{Alert.alert("2")} 
+                }
+            } />
+        ):null}
+
             <ScrollView contentContainerStyle={styles.scrollView}>
                 <View style={styles.container}>
                     <View style={styles.firstView}>
@@ -99,7 +133,7 @@ export default function index() {
                         <View style={styles.fields}>
                             <InputField params={{ lableText: "Fridge Code", inputMode: "text", secureTextEntry: false, func: (value) => handleInputChange("fridgeCode", value) }} />
                             <InputField params={{ lableText: "Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("password", value) }} />
-                            <Button text={buttonText} style={{ marginTop: 50, width: "100%",backgroundColor:"#0d5e18" }} func={request} />
+                            <Button text={buttonText} style={{ marginTop: 50, width: "100%", backgroundColor: "#0d5e18" }} func={request} />
 
                             <Text style={styles.linkText}>
                                 New to ZapChat?
@@ -126,7 +160,7 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         flexGrow: 1,
-        justifyContent: 'center',   
+        justifyContent: 'center',
         alignItems: 'center',
     },
     container: {
@@ -151,7 +185,7 @@ const styles = StyleSheet.create({
     },
     text2: {
         fontSize: 16,
-        color:"#0d5e18"
+        color: "#0d5e18"
     },
     secondView: {
         marginTop: 20,
