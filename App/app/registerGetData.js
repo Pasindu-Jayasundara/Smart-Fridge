@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
+import CustomAlert from "../components/CustomAlert";
 
 const logoIcon = require("../assets/fr.png");
 
@@ -15,6 +16,12 @@ export default function registerGetData() {
         password: "",
         reTypePassword: "",
     });
+    const [buttonText, setButtonText] = useState("Register");
+
+    const [getShowCustomAlert, setShowCustomAlert] = useState(false);
+    const [getCustomAlertText, setCustomAlertText] = useState("");
+    const [getCustomAlertIcon, setCustomAlertIcon] = useState("");
+    const [getButtonCount, setButtonCount] = useState(1);
 
     const handleInputChange = (name, value) => {
         setFormData({
@@ -26,13 +33,50 @@ export default function registerGetData() {
     async function request() {
         const { fridgeCode, password, reTypePassword } = formData;
 
+        setButtonText("Registering ...");
+
         if (fridgeCode.trim().length == 0) {
-            Alert.alert("Missing Fridge Code");
-        } else if (password.trim().length < 8) {
-            Alert.alert("Password must be between 8-20 letters");
-        } else if (reTypePassword.trim().length < 8) {
-            Alert.alert("Password must be between 8-20 letters");
-        } else {
+
+            setShowCustomAlert(true);
+            setCustomAlertText("Fridge Code is required");
+            setCustomAlertIcon("❗");
+            setButtonText("Register");
+
+            return;
+
+        }
+        if (password.trim().length < 8) {
+
+            setShowCustomAlert(true);
+            setCustomAlertText("Password must be between 8-20 letters");
+            setCustomAlertIcon("❗");
+            setButtonText("Register");
+            return;
+
+        }
+        if (reTypePassword.trim().length < 8) {
+
+            setShowCustomAlert(true);
+            setCustomAlertText("Re-type Password must be between 8-20 letters");
+            setCustomAlertIcon("❗");
+            setButtonText("Register");
+
+            return;
+
+        }
+
+        if (reTypePassword.trim() != password.trim()) {
+
+            setShowCustomAlert(true);
+            setCustomAlertText("Passwords Must be Same");
+            setCustomAlertIcon("❗");
+            setButtonText("Register");
+
+            return;
+
+        }
+
+        try {
             let url = process.env.EXPO_PUBLIC_URL + "/Register";
             let data = { fridgeCode, password, reTypePassword };
 
@@ -45,39 +89,63 @@ export default function registerGetData() {
             });
 
             if (response.ok) {
+
                 let obj = await response.json();
-                if (obj.success) {
-                    try {
-                        await AsyncStorage.setItem("user", obj.data);
-                        router.push("/");
-                    } catch (error) {
-                        Alert.alert("Something Went Wrong");
-                        console.log(error);
-                    }
-                } else {
-                    Alert.alert(obj.data);
-                    console.log(obj.data);
+                
+                if(obj.isSuccess){
+                    setButtonCount(2);
                 }
+                setShowCustomAlert(true);
+                setCustomAlertText(obj.data);
+                setCustomAlertIcon("❗");
+                setButtonText("Register");
+
             } else {
-                Alert.alert("Please Try Again Later");
-                console.log(response);
+                setShowCustomAlert(true);
+                setCustomAlertText("Please Try Again Later");
+                setCustomAlertIcon("❗");
+                setButtonText("Register");
             }
+        } catch (error) {
+            setShowCustomAlert(true);
+            setCustomAlertText("Something Went Wrong");
+            setCustomAlertIcon("❗");
+            setButtonText("Register");
+        } finally {
+            setButtonText("Register");
         }
     }
 
     return (
         <SafeAreaView style={styles.safearea}>
+            {getShowCustomAlert ? (
+                <CustomAlert params={
+                    {
+                        icon: getCustomAlertIcon,
+                        iconType: "text",
+                        message: getCustomAlertText,
+                        iconBgColor: "white",
+                        buttonCount: getButtonCount,
+                        button1Color: "orange",
+                        button1Text: "OK",
+                        button2Color: "green",
+                        button2Text: "LogIn",
+                        button1Func: () => { setShowCustomAlert(false) },
+                        button2Func: () => { router.replace("/"); }
+                    }
+                } />
+            ) : null}
             <ScrollView contentContainerStyle={styles.scrolView}>
                 <View style={styles.container}>
                     <Image source={logoIcon} style={styles.logo} />
 
                     <Text style={styles.title}>Setup Your Fridge</Text>
 
-                    <InputField params={{ lableText: "Fridge Code", inputMode: "text", secureTextEntry: false, func: (value) => handleInputChange("mobile", value) }} />
+                    <InputField params={{ lableText: "Fridge Code", inputMode: "text", secureTextEntry: false, func: (value) => handleInputChange("fridgeCode", value) }} />
                     <InputField params={{ lableText: "Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("password", value) }} />
                     <InputField params={{ lableText: "Re-type Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("reTypePassword", value) }} />
 
-                    <Button text={"Next"} style={{ marginTop: 50, width: "100%", backgroundColor: "#0d5e18" }} func={request} />
+                    <Button text={buttonText} style={{ marginTop: 50, width: "100%", backgroundColor: "#0d5e18" }} func={request} />
                 </View>
             </ScrollView>
         </SafeAreaView>

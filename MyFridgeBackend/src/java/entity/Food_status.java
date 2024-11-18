@@ -24,7 +24,7 @@ public class Food_status implements Serializable{
     private String food_status;
     
     @OneToOne
-    @JoinColumn(name = "fridge")
+    @JoinColumn(name = "fridge_id")
     private Fridge fridge;
 
     public Food_status() {

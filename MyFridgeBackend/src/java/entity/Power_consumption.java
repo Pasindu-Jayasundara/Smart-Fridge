@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -26,7 +27,7 @@ public class Power_consumption implements Serializable{
     @Column(name = "power",nullable = false)
     private double power;
     
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "fridge_id")
     private Fridge fridge;
 

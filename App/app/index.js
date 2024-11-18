@@ -86,11 +86,15 @@ export default function index() {
                 //     }
                 // }
             } else {
-                Alert.alert("Please Try Again Later");
+                setShowCustomAlert(true);
+                setCustomAlertText("Please Try Again Later");
+                setCustomAlertIcon("❗");
             }
         } catch (error) {
             console.log(error);
-            Alert.alert("Something Went Wrong");
+            setShowCustomAlert(true);
+            setCustomAlertText("Something Went Wrong");
+            setCustomAlertIcon("❗");
         } finally {
             setButtonText("Let's Go");
         }
@@ -100,23 +104,23 @@ export default function index() {
 
         <SafeAreaView style={styles.safeAreaView}>
 
-        {getShowCustomAlert?(
-            <CustomAlert params={
-                { 
-                    icon: getCustomAlertIcon, 
-                    iconType: "text", 
-                    message: getCustomAlertText, 
-                    iconBgColor: "white", 
-                    buttonCount: 1, 
-                    button1Color: "orange", 
-                    button1Text: "Update", 
-                    button2Color: "green", 
-                    button2Text: "OK",
-                    button1Func:()=>{setShowCustomAlert(false)},
-                    button2Func:()=>{Alert.alert("2")} 
-                }
-            } />
-        ):null}
+            {getShowCustomAlert ? (
+                <CustomAlert params={
+                    {
+                        icon: getCustomAlertIcon,
+                        iconType: "text",
+                        message: getCustomAlertText,
+                        iconBgColor: "white",
+                        buttonCount: 1,
+                        button1Color: "orange",
+                        button1Text: "Update",
+                        button2Color: "green",
+                        button2Text: "OK",
+                        button1Func: () => { setShowCustomAlert(false) },
+                        button2Func: () => { Alert.alert("2") }
+                    }
+                } />
+            ) : null}
 
             <ScrollView contentContainerStyle={styles.scrollView}>
                 <View style={styles.container}>
