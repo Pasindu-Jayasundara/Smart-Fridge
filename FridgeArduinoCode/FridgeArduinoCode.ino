@@ -1,3 +1,8 @@
+#include <Arduino_JSON.h>
+
+#include <WiFi.h>
+#include <WiFiClient.h>
+
 #include <HX711_ADC.h>
 #if defined(ESP8266) || defined(ESP32) || defined(AVR)
 #include <EEPROM.h>
@@ -25,7 +30,7 @@ unsigned long t = 0;
 
 void weight() {
   LoadCell.begin();
-  LoadCell.setReverseOutput(); //uncomment to turn a negative output value to positive
+  LoadCell.setReverseOutput();           //uncomment to turn a negative output value to positive
   unsigned long stabilizingtime = 2000;  // preciscion right after power-up can be improved by adding a few seconds of stabilizing time
   boolean _tare = true;                  //set this to false if you don't want tare to be performed in the next step
   LoadCell.start(stabilizingtime, _tare);
@@ -42,7 +47,7 @@ void weight() {
   calibrate();  //start calibration procedure
 }
 
-float weightValue=0.0;
+float weightValue = 0.0;
 void getWeight(void* vParameters) {
   while (true) {
     static boolean newDataReady = 0;
@@ -58,7 +63,7 @@ void getWeight(void* vParameters) {
         Serial.print("Load_cell output val: ");
         Serial.println(i);
 
-        weightValue=i/1000;
+        weightValue = i / 1000;
         newDataReady = 0;
         t = millis();
       }
@@ -312,6 +317,18 @@ void humidityAndTemperature(void* vParameters) {
 
 
 // .................. display - start .................. //
+void setupDisplay() {
+  Wire.begin(21, 32);
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for (;;)
+      ;
+  }
+  delay(2000);
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+}
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 void displayData(void* vParameters) {
   while (true) {
@@ -409,27 +426,110 @@ void displayData(void* vParameters) {
 // .................. display - end .................. //
 
 
+// .................. wifi - start .................. //
+void setupWifi() {
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.print("Smart Fridge");
+  display.setCursor(0, 35);
+  display.print("Connecting to WiFi ...");
+  display.display();
+
+  WiFi.begin("", "");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.print("Smart Fridge");
+  display.setCursor(0, 35);
+  display.print("WiFi Connected");
+  display.display();
+}
+// .................. wifi - end .................. //
+
+
+// .................. client - start .................. //
+void client(void* vParameters) {
+  while (true) {
+    static bool requestInProgress = false;
+
+    if (!requestInProgress) {
+      requestInProgress = true;
+
+      JSONVar jsonObject;
+      jsonObject["fridgeCode"] = "22620";
+      jsonObject["doorStatus"] = doorState;
+      jsonObject["foodStatus"] = "50";
+      jsonObject["temperature"] = temperature;
+      jsonObject["humidity"] = humidity;
+      jsonObject["weight"] = weightValue;
+      jsonObject["powerUsage"] = energy;
+
+      String jsonString = JSON.stringify(jsonObject);
+
+      HTTPClient request = HTTPClient();
+      request.begin("");
+      request.addHeader("Content-Type", "application/json");
+
+      int status = request.POST(jsonString);
+
+      if (status > 0 && status == HTTP_CODE_OK) {
+
+        String responseJson = request.getString();
+        JSONVar responseObject = JSON.parse(responseJson);
+
+        boolean isSuccess = responseObject["isSuccess"];
+        if (isSuccess) {
+
+          int turnOn = responseObject["data"];
+
+          if (turnOn == 1) {
+            digitalWrite(18, HIGH);
+          } else if (turnOn == 0) {
+            digitalWrite(18, LOW);
+          } else {
+            Serial.println(turnOn);
+          }
+          
+        }else{
+          Serial.println(responseObject["data"]);
+        }
+
+      } else {
+        Serial.println("Request Error");
+      }
+
+      request.end();
+      requestInProgress = false;
+    }
+
+    vTaskDelay(3000 / portTICK_PERIOD_MS);  // Wait before retrying
+  }
+}
+// .................. client - end .................. //
+
+
+
 void setup() {
   Serial.begin(115200);
 
   pinMode(16, INPUT_PULLUP);  // door sensor + pin
   pinMode(22, INPUT_PULLUP);  // dht11
+  pinMode(18, OUTPUT);        // turn on
 
   //display
-  Wire.begin(21, 32);
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    for (;;)
-      ;
-  }
-  delay(2000);
-  display.clearDisplay();
-  display.setTextColor(WHITE);
+  setupDisplay();
 
   // weight
   weight();
-  // weight
 
+  // wifi
+  setupWifi();
 
   // Task 1 => calculate power usage
   xTaskCreatePinnedToCore(
@@ -479,11 +579,22 @@ void setup() {
   xTaskCreatePinnedToCore(
     getWeight,    // Task function
     "getWeight",  // Task name
-    2048,           // Stack size
-    NULL,           // Parameter
-    1,              // Priority
-    NULL,           // Task handle (NULL if not used)
-    1               // Core ID (set to 0 or 1)
+    2048,         // Stack size
+    NULL,         // Parameter
+    1,            // Priority
+    NULL,         // Task handle (NULL if not used)
+    0             // Core ID (set to 0 or 1)
+  );
+
+  // Task 6 => client
+  xTaskCreatePinnedToCore(
+    client,    // Task function
+    "client",  // Task name
+    2048,      // Stack size
+    NULL,      // Parameter
+    3,         // Priority
+    NULL,      // Task handle (NULL if not used)
+    1          // Core ID (set to 0 or 1)
   );
 }
 

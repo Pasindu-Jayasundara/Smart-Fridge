@@ -26,6 +26,9 @@ public class Fridge implements Serializable{
     
     @Column(name = "password",nullable = false,length = 250)
     private String password;
+    
+    @Column(name = "isOn")
+    private boolean isOn;
 
     public Fridge() {
     }
@@ -60,6 +63,14 @@ public class Fridge implements Serializable{
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isIsOn() {
+        return isOn;
+    }
+
+    public void setIsOn(boolean isOn) {
+        this.isOn = isOn;
     }
 
 }

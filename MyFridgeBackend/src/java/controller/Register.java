@@ -6,6 +6,7 @@ import dto.Response_DTO;
 import entity.Door_status;
 import entity.Food_status;
 import entity.Fridge;
+import entity.Humidity;
 import entity.Rack_number;
 import entity.Rack_weight;
 import entity.Tempreature;
@@ -56,6 +57,7 @@ public class Register extends HttpServlet {
             newFridge.setCode(fridgeCode);
             newFridge.setDatetime(new Date());
             newFridge.setPassword(encryptedPassword);
+            newFridge.setIsOn(true);
 
             hibernateSession.save(newFridge);
 
@@ -65,6 +67,13 @@ public class Register extends HttpServlet {
             newTemp.setTemp(0.0);
 
             hibernateSession.save(newTemp);
+            
+            //humidity
+            Humidity newHumidity = new Humidity();
+            newHumidity.setFridge(newFridge);
+            newHumidity.setHumidity(0.0);
+
+            hibernateSession.save(newHumidity);
             
             // door
             Door_status newDoorStatus = new Door_status();

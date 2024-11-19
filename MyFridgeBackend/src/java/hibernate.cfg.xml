@@ -21,6 +21,7 @@
         <mapping class="entity.Rack_number" />  
         <mapping class="entity.Rack_weight" />  
         <mapping class="entity.Tempreature" />  
+        <mapping class="entity.Humidity" />  
         
     </session-factory>
 </hibernate-configuration>
