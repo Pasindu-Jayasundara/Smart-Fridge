@@ -186,6 +186,7 @@ public class LoadProfile extends HttpServlet {
                 replyObj.add("humidity", humidityObj);
             }
 
+            replyObj.addProperty("fridgeStatus", fridge.isIsOn());
         } else {
             isSuccess = false;
         }

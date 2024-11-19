@@ -13,6 +13,7 @@ import Weight from "../components/Weight";
 import DoorStatus from "../components/DoorStatus";
 import FoodStatus from "../components/FoodStatus";
 import Humidity from "../components/Humidity";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 export default function home() {
 
@@ -29,6 +30,9 @@ export default function home() {
     const [getPowerUsage, setPowerUsage] = useState("");
     const [getDoorStatus, setDoorStatus] = useState("");
     const [getFoodStatus, setFoodStatus] = useState("");
+    const [getFridgeStatus, setFridgeStatus] = useState("");
+
+    const [getButtonText, setButtonText] = useState("");
 
     const coderef = useRef(null)
     const [getCode, setCode] = useState(coderef.current);
@@ -80,6 +84,9 @@ export default function home() {
                     setPowerUsage(obj.data.powerConsumption.power)
                     setWeight(obj.data.rackWeight.rackOne.weight)
 
+                    setFridgeStatus(obj.data.fridgeStatus)
+                    setButtonText(obj.data.fridgeStatus == 1 ? "Turn OFF" : "Turn ON")
+
                 } else {
                     setShowCustomAlert(true);
                     setCustomAlertText(obj.data);
@@ -96,6 +103,54 @@ export default function home() {
             setCustomAlertIcon("❗");
         }
 
+    }
+
+    async function changeFridgeStatus() {
+
+        if (getCode == null) {
+            let code = await AsyncStorage.getItem("fridgeCode");
+            coderef.current = code
+            setCode(code)
+        }
+
+        let url = process.env.EXPO_PUBLIC_URL + "/UpdateFridgeStatus";
+        let data = {
+            fridgeCode: JSON.parse(coderef.current)
+        };
+
+        try {
+            let response = await fetch(url, {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+
+            if (response.ok) {
+                let obj = await response.json();
+
+                if (obj.isSuccess) {
+
+                    setShowCustomAlert(true);
+                    setCustomAlertText(obj.data);
+                    setCustomAlertIcon("✅");
+
+                    setFridgeStatus(!getFridgeStatus == 1 ? 0 : 1)
+                    setButtonText(getFridgeStatus == 1 ? "Turn OFF" : "Turn ON")
+
+                } else {
+                    setShowCustomAlert(true);
+                    setCustomAlertText(obj.data);
+                    setCustomAlertIcon("❗");
+                }
+            }
+
+        } catch (error) {
+            setShowCustomAlert(true);
+            setCustomAlertText("Something Went Wrong");
+            setCustomAlertIcon("❗");
+        }
     }
 
     return (
@@ -131,30 +186,30 @@ export default function home() {
 
                     <View style={styles.second}>
                         <View style={[styles.dashboardItem, { width: "100%" }]}>
-                            <PowerUsage usage={20} date={"2024/12/11"} />
+                            <PowerUsage usage={getPowerUsage} date={"2024/12/11"} />
                         </View>
 
                         <View style={[styles.dashboardItem, { width: "100%" }]}>
-                            <Weight weight={20} />
+                            <Weight weight={getWeight} />
                         </View>
                     </View>
                 </View>
 
                 <View style={[styles.dashboardItem, { width: "96%" }]}>
-                    <Humidity humidity={"50"} />
+                    <Humidity humidity={getHumidity} />
                 </View>
 
                 <View style={[styles.second, { flexDirection: "row", width: "100%", justifyContent: "space-evenly" }]}>
                     <View style={[styles.dashboardItem, { width: "45%" }]}>
-                        <DoorStatus status={"Close"} />
+                        <DoorStatus status={getDoorStatus} />
                     </View>
 
                     <View style={[styles.dashboardItem, { width: "45%" }]}>
-                        <FoodStatus status={"Middle"} />
+                        <FoodStatus status={getFoodStatus} />
                     </View>
                 </View>
 
-                <Button text={"Turn OFF"} style={{height:70, width: "96%", backgroundColor: "#961a02",marginTop:50 }} func={() => { loadData() }} />
+                <Button text={"Turn OFF"} style={{height:70, width: "96%", backgroundColor: "#961a02",marginTop:50 }} func={changeFridgeStatus} />
             </View>
 
         </SafeAreaView>
