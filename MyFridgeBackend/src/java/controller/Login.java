@@ -87,6 +87,8 @@ public class Login extends HttpServlet {
                 }
                 replyObj.add("rackWeight", rackWeightObj);
             }
+            
+            replyObj.add("registered", gson.toJsonTree(fridge.getDatetime()));
 
             // power consumption
             Criteria powerConsumptionCriteria = hibernateSession.createCriteria(Power_consumption.class);
@@ -154,7 +156,6 @@ public class Login extends HttpServlet {
         if (!isSuccess) {
             replyObj.addProperty("msg", message);
         }
-        replyObj.add("registered", gson.toJsonTree(fridge.getDatetime()));
 
         hibernateSession.close();
 

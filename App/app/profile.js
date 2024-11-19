@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Accordion from 'project-react-accordion';
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import CustomAlert from "../components/CustomAlert";
@@ -19,7 +19,7 @@ export default function Profile() {
     const [getShowCustomAlert, setShowCustomAlert] = useState(false);
     const [getCustomAlertText, setCustomAlertText] = useState("");
     const [getCustomAlertIcon, setCustomAlertIcon] = useState("");
-    
+
     const [getButtonText, setButtonText] = useState("Update Password");
 
     useEffect(() => {
@@ -99,10 +99,10 @@ export default function Profile() {
         }
 
         let url = process.env.EXPO_PUBLIC_URL + "/UpdatePassword";
-        let data = { 
-            fridgeCode:coderef.current, 
-            newPassword:reTypePassword,
-            oldPassword:password 
+        let data = {
+            fridgeCode: coderef.current,
+            newPassword: reTypePassword,
+            oldPassword: password
         };
 
         try {
@@ -120,7 +120,7 @@ export default function Profile() {
 
                 let obj = await response.json();
                 if (obj.isSuccess) {
-                    
+
                     setShowCustomAlert(true);
                     setCustomAlertText(obj.data);
                     setCustomAlertIcon("✅");
@@ -150,15 +150,24 @@ export default function Profile() {
 
     }
 
-    async function logout() {
+    function logout() {
 
         setShowCustomAlert(true);
         setCustomAlertText("Are you sure you want to log out?");
         setCustomAlertIcon("❗");
 
-        await AsyncStorage.removeItem("fridgeCode");
-        await AsyncStorage.removeItem("registered");
-        router.replace("/");
+    }
+
+    async function logoutapproved() {
+        try {
+            await AsyncStorage.removeItem("fridgeCode");
+            await AsyncStorage.removeItem("registered");
+            router.replace("/");
+        } catch {
+            setShowCustomAlert(true);
+            setCustomAlertText("PLease Try Again Later !");
+            setCustomAlertIcon("❗");
+        }
     }
 
     return (
@@ -171,20 +180,20 @@ export default function Profile() {
                         iconType: "text",
                         message: getCustomAlertText,
                         iconBgColor: "white",
-                        buttonCount: 1,
+                        buttonCount: 2,
                         button1Color: "black",
                         button1Text: "No",
                         button2Color: "red",
                         button2Text: "Yes",
                         button1Func: () => { setShowCustomAlert(false) },
-                        button2Func: logout
+                        button2Func: logoutapproved
                     }
                 } />
             ) : null}
 
             <Text style={styles.name}>Account</Text>
-            <Text style={styles.email}>Fridge Code      : {coderef.current}</Text>
-            <Text style={styles.email}>Registered On  : {dateref.current}</Text>
+            <Text style={styles.email}>Fridge Code      : {JSON.parse(coderef.current)}</Text>
+            <Text style={styles.email}>Registered On  : {JSON.parse(dateref.current)}</Text>
 
             <Accordion title={"Change Password"} key={Math.random()} style={
                 {
@@ -215,11 +224,11 @@ export default function Profile() {
                 <InputField params={{ lableText: "Old Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("password", value) }} />
                 <InputField params={{ lableText: "New Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("reTypePassword", value) }} />
 
-                <Button text={getButtonText} style={{ marginTop: 30, width: "100%", backgroundColor: "#0d5e18", func: updatePassword }} />
+                <Button text={getButtonText} style={{ marginTop: 30, width: "100%", backgroundColor: "#0d5e18" }} func={updatePassword} />
 
             </Accordion>
 
-            <Button text={"Log out"} style={{ marginTop: 100, width: "100%", backgroundColor: "#ba0606", borderRadius: 10, func: logout }} />
+            <Button text={"Log out"} style={{ marginTop: 100, width: "100%", backgroundColor: "#ba0606", borderRadius: 10 }} func={logout} />
 
         </SafeAreaView>
     );

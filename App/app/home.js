@@ -14,6 +14,9 @@ import DoorStatus from "../components/DoorStatus";
 import FoodStatus from "../components/FoodStatus";
 import Humidity from "../components/Humidity";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function home() {
 
@@ -101,21 +104,17 @@ export default function home() {
             setShowCustomAlert(true);
             setCustomAlertText("Something Went Wrong");
             setCustomAlertIcon("❗");
+        }finally{
+            SplashScreen.hideAsync();
         }
 
     }
 
     async function changeFridgeStatus() {
 
-        if (getCode == null) {
-            let code = await AsyncStorage.getItem("fridgeCode");
-            coderef.current = code
-            setCode(code)
-        }
-
         let url = process.env.EXPO_PUBLIC_URL + "/UpdateFridgeStatus";
         let data = {
-            fridgeCode: JSON.parse(coderef.current)
+            fridgeCode: getCode,
         };
 
         try {
@@ -133,15 +132,15 @@ export default function home() {
                 if (obj.isSuccess) {
 
                     setShowCustomAlert(true);
-                    setCustomAlertText(obj.data);
+                    setCustomAlertText("Fridge Status Updated");
                     setCustomAlertIcon("✅");
 
-                    setFridgeStatus(!getFridgeStatus == 1 ? 0 : 1)
-                    setButtonText(getFridgeStatus == 1 ? "Turn OFF" : "Turn ON")
+                    setFridgeStatus(!getFridgeStatus)
+                    setButtonText(!getFridgeStatus ? "Turn OFF" : "Turn ON")
 
                 } else {
                     setShowCustomAlert(true);
-                    setCustomAlertText(obj.data);
+                    setCustomAlertText("Something Went Wrong");
                     setCustomAlertIcon("❗");
                 }
             }
@@ -165,8 +164,8 @@ export default function home() {
                         message: getCustomAlertText,
                         iconBgColor: "white",
                         buttonCount: 1,
-                        button1Color: "orange",
-                        button1Text: "Update",
+                        button1Color: "black",
+                        button1Text: "OK",
                         button2Color: "green",
                         button2Text: "OK",
                         button1Func: () => { setShowCustomAlert(false) },

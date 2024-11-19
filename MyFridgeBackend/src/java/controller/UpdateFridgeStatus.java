@@ -33,12 +33,14 @@ public class UpdateFridgeStatus extends HttpServlet {
         Criteria fridgeCriteria = hibernateSession.createCriteria(Fridge.class);
         fridgeCriteria.add(Restrictions.eq("code", fridgeCode));
         Fridge fridge = (Fridge) fridgeCriteria.uniqueResult();
-        
-        if(fridge!=null){
-            
+
+        if (fridge != null) {
+
             fridge.setIsOn(!fridge.isIsOn());
             hibernateSession.update(fridge);
-            
+
+            hibernateSession.beginTransaction().commit();
+
         } else {
             isSuccess = false;
         }

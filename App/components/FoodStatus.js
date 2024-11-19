@@ -5,7 +5,7 @@ export default function FoodStatus({status}) {
     return(
         <View style={styles.container}>
             <Text style={styles.label}>Food : </Text>
-            {status < 45 && status < 90 ? (
+            {status > 45 && status < 90 ? (
                 <Text style={[styles.label2, { color: "orange" }]}>{status}</Text>
             ) : status > 90 ? (
                 <Text style={[styles.label2, { color: "red" }]}>{status}</Text>
