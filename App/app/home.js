@@ -31,7 +31,6 @@ export default function home() {
     const [getHumidity, setHumidity] = useState("");
     const [getWeight, setWeight] = useState("");
     const [getPowerUsage, setPowerUsage] = useState("");
-    const [getDoorStatus, setDoorStatus] = useState("");
     const [getFoodStatus, setFoodStatus] = useState("");
     const [getFridgeStatus, setFridgeStatus] = useState("");
 
@@ -40,14 +39,17 @@ export default function home() {
     const coderef = useRef(null)
     const [getCode, setCode] = useState(coderef.current);
 
+    const doorref = useRef(false)
+    const [getDoorStatus, setDoorStatus] = useState(doorref.current);
+
     useEffect(() => {
 
         if (jsonData === "{}") {
             loadData()
         } else {
-            // setTimeout(() => {
-            //     loadData()
-            // }, 10000);
+            setTimeout(() => {
+                loadData()
+            }, 10000);
         }
 
     }, []);
@@ -81,7 +83,8 @@ export default function home() {
 
                     console.log(obj.data)
                     setTempreature(obj.data.tempreature.tempreature)
-                    setDoorStatus(obj.data.doorStatus.isNowOpen)
+                    doorref.current = obj.data.doorStatus.isNowOpen
+                    // console.log(obj.data.doorStatus.isNowOpen)
                     setFoodStatus(obj.data.foodStatus.foodStatus)
                     setHumidity(obj.data.humidity.humidity)
                     setPowerUsage(obj.data.powerConsumption.power)
@@ -97,9 +100,9 @@ export default function home() {
                 }
             }
 
-            // setTimeout(() => {
-            //     loadData()
-            // }, 10000);
+            setTimeout(() => {
+                loadData()
+            }, 10000);
         } catch (error) {
             setShowCustomAlert(true);
             setCustomAlertText("Something Went Wrong");
@@ -200,7 +203,7 @@ export default function home() {
 
                 <View style={[styles.second, { flexDirection: "row", width: "100%", justifyContent: "space-evenly" }]}>
                     <View style={[styles.dashboardItem, { width: "45%" }]}>
-                        <DoorStatus status={getDoorStatus} />
+                        <DoorStatus status={doorref.current} />
                     </View>
 
                     <View style={[styles.dashboardItem, { width: "45%" }]}>

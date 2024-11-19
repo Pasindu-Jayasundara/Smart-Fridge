@@ -1,3 +1,5 @@
+#include <HTTPClient.h>
+
 #include <Arduino_JSON.h>
 
 #include <WiFi.h>
@@ -317,6 +319,8 @@ void humidityAndTemperature(void* vParameters) {
 
 
 // .................. display - start .................. //
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
 void setupDisplay() {
   Wire.begin(21, 32);
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
@@ -329,7 +333,6 @@ void setupDisplay() {
   display.setTextColor(WHITE);
 }
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 void displayData(void* vParameters) {
   while (true) {
 
@@ -437,7 +440,7 @@ void setupWifi() {
   display.print("Connecting to WiFi ...");
   display.display();
 
-  WiFi.begin("", "");
+  WiFi.begin("Pasindu's Galaxy M14", "pasi1234");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
@@ -454,63 +457,63 @@ void setupWifi() {
 
 
 // .................. client - start .................. //
-void client(void* vParameters) {
-  while (true) {
-    static bool requestInProgress = false;
+// void client(void* vParameters) {
+//   while (true) {
+//     boolean requestInProgress = false;
 
-    if (!requestInProgress) {
-      requestInProgress = true;
+//     if (!requestInProgress) {
+//       requestInProgress = true;
 
-      JSONVar jsonObject;
-      jsonObject["fridgeCode"] = "22620";
-      jsonObject["doorStatus"] = doorState;
-      jsonObject["foodStatus"] = "50";
-      jsonObject["temperature"] = temperature;
-      jsonObject["humidity"] = humidity;
-      jsonObject["weight"] = weightValue;
-      jsonObject["powerUsage"] = energy;
+//       // JSONVar jsonObject;
+//       // jsonObject["fridgeCode"] = "22620";
+//       // jsonObject["doorStatus"] = doorState;
+//       // jsonObject["foodStatus"] = "50";
+//       // jsonObject["temperature"] = temperature;
+//       // jsonObject["humidity"] = humidity;
+//       // jsonObject["weight"] = weightValue;
+//       // jsonObject["powerUsage"] = energy;
 
-      String jsonString = JSON.stringify(jsonObject);
+//       // String jsonString = JSON.stringify(jsonObject);
 
-      HTTPClient request = HTTPClient();
-      request.begin("https://redbird-suitable-conversely.ngrok-free.app/MyFridgeBackend/FromArduino");
-      request.addHeader("Content-Type", "application/json");
+//       // HTTPClient request = HTTPClient();
+//       // request.begin("https://redbird-suitable-conversely.ngrok-free.app/MyFridgeBackend/FromArduino");
+//       // request.addHeader("Content-Type", "application/json");
 
-      int status = request.POST(jsonString);
+//       // int status = request.POST(jsonString);
 
-      if (status > 0 && status == HTTP_CODE_OK) {
+//       // if (status > 0 && status == HTTP_CODE_OK) {
 
-        String responseJson = request.getString();
-        JSONVar responseObject = JSON.parse(responseJson);
+//       //   String responseJson = request.getString();
+//       //   JSONVar responseObject = JSON.parse(responseJson);
 
-        boolean isSuccess = responseObject["isSuccess"];
-        if (isSuccess) {
+//       //   boolean isSuccess = responseObject["isSuccess"];
+//       //   if (isSuccess) {
 
-          int turnOn = responseObject["data"];
+//       //     int turnOn = responseObject["data"];
 
-          if (turnOn == 1) {
-            digitalWrite(18, HIGH);
-          } else if (turnOn == 0) {
-            digitalWrite(18, LOW);
-          } else {
-            Serial.println(turnOn);
-          }
-          
-        }else{
-          Serial.println(responseObject["data"]);
-        }
+//       //     if (turnOn == 1) {
+//       //       digitalWrite(18, HIGH);
+//       //     } else if (turnOn == 0) {
+//       //       digitalWrite(18, LOW);
+//       //     } else {
+//       //       Serial.println(turnOn);
+//       //     }
 
-      } else {
-        Serial.println("Request Error");
-      }
+//       //   }else{
+//       //     Serial.println(responseObject["data"]);
+//       //   }
 
-      request.end();
-      requestInProgress = false;
-    }
+//       // } else {
+//       //   Serial.println("Request Error");
+//       // }
 
-    vTaskDelay(3000 / portTICK_PERIOD_MS);  // Wait before retrying
-  }
-}
+//       // request.end();
+//       requestInProgress = false;
+//     }
+
+//     vTaskDelay(3000 / portTICK_PERIOD_MS);  // Wait before retrying
+//   }
+// }
 // .................. client - end .................. //
 
 
@@ -587,16 +590,63 @@ void setup() {
   );
 
   // Task 6 => client
-  xTaskCreatePinnedToCore(
-    client,    // Task function
-    "client",  // Task name
-    2048,      // Stack size
-    NULL,      // Parameter
-    3,         // Priority
-    NULL,      // Task handle (NULL if not used)
-    1          // Core ID (set to 0 or 1)
-  );
+  // xTaskCreatePinnedToCore(
+  //   client,    // Task function
+  //   "client",  // Task name
+  //   2048,      // Stack size
+  //   NULL,      // Parameter
+  //   3,         // Priority
+  //   NULL,      // Task handle (NULL if not used)
+  //   1          // Core ID (set to 0 or 1)
+  // );
 }
 
 void loop() {
+
+  JSONVar jsonObject;
+  jsonObject["fridgeCode"] = "22620";
+  jsonObject["doorStatus"] = doorState;
+  jsonObject["foodStatus"] = "50";
+  jsonObject["temperature"] = temperature;
+  jsonObject["humidity"] = humidity;
+  jsonObject["weight"] = weightValue;
+  jsonObject["powerUsage"] = energy;
+
+  String jsonString = JSON.stringify(jsonObject);
+
+  HTTPClient request = HTTPClient();
+  request.begin("https://redbird-suitable-conversely.ngrok-free.app/MyFridgeBackend/FromArduino");
+  request.addHeader("Content-Type", "application/json");
+
+  int status = request.POST(jsonString);
+
+  if (status > 0) {
+
+    if(status == HTTP_CODE_OK){
+
+    String responseJson = request.getString();
+    JSONVar responseObject = JSON.parse(responseJson);
+
+    boolean isSuccess = responseObject["isSuccess"];
+    if (isSuccess) {
+
+      int turnOn = responseObject["data"];
+
+      if (turnOn == 1) {
+        digitalWrite(18, HIGH);
+      } else if (turnOn == 0) {
+        digitalWrite(18, LOW);
+      } else {
+        Serial.println(turnOn);
+      }
+
+    } else {
+      Serial.println(responseObject["data"]);
+    }
+    }
+  } else {
+    Serial.println("Request Error");
+  }
+
+  request.end();
 }

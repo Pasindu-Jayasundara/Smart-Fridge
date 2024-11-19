@@ -5,7 +5,7 @@ export default function Weight({weight}) {
     return(
         <View style={styles.container}>
             <Text style={styles.label}>Weight</Text>
-            <Text style={styles.label2}>{weight} Kg</Text>
+            <Text style={styles.label2}>{parseFloat(weight).toFixed(2)} Kg</Text>
         </View>
     )
 }
