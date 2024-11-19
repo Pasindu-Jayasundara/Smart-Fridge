@@ -473,7 +473,7 @@ void client(void* vParameters) {
       String jsonString = JSON.stringify(jsonObject);
 
       HTTPClient request = HTTPClient();
-      request.begin("");
+      request.begin("https://redbird-suitable-conversely.ngrok-free.app/MyFridgeBackend/FromArduino");
       request.addHeader("Content-Type", "application/json");
 
       int status = request.POST(jsonString);
