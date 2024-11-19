@@ -24,6 +24,11 @@ export default function home() {
     const [getCustomAlertIcon, setCustomAlertIcon] = useState("");
 
     const [getTempreature, setTempreature] = useState("");
+    const [getHumidity, setHumidity] = useState("");
+    const [getWeight, setWeight] = useState("");
+    const [getPowerUsage, setPowerUsage] = useState("");
+    const [getDoorStatus, setDoorStatus] = useState("");
+    const [getFoodStatus, setFoodStatus] = useState("");
 
     const coderef = useRef(null)
     const [getCode, setCode] = useState(coderef.current);
@@ -69,6 +74,11 @@ export default function home() {
 
                     console.log(obj.data)
                     setTempreature(obj.data.tempreature.tempreature)
+                    setDoorStatus(obj.data.doorStatus.isNowOpen)
+                    setFoodStatus(obj.data.foodStatus.foodStatus)
+                    setHumidity(obj.data.humidity.humidity)
+                    setPowerUsage(obj.data.powerConsumption.power)
+                    setWeight(obj.data.rackWeight.rackOne.weight)
 
                 } else {
                     setShowCustomAlert(true);

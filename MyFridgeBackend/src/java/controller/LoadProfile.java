@@ -6,10 +6,12 @@ import dto.Response_DTO;
 import entity.Door_status;
 import entity.Food_status;
 import entity.Fridge;
+import entity.Humidity;
 import entity.Power_consumption;
 import entity.Rack_weight;
 import entity.Tempreature;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -35,13 +37,13 @@ public class LoadProfile extends HttpServlet {
         JsonObject replyObj = new JsonObject();
 
         boolean isSuccess = true;
-        
+
         Criteria fridgeCriteria = hibernateSession.createCriteria(Fridge.class);
         fridgeCriteria.add(Restrictions.eq("code", fridgeCode));
         Fridge fridge = (Fridge) fridgeCriteria.uniqueResult();
 
         if (fridge != null) {
-            
+
             // rack weight
             Criteria rackWeightCriteria = hibernateSession.createCriteria(Rack_weight.class);
             rackWeightCriteria.add(Restrictions.eq("fridge", fridge));
@@ -65,6 +67,15 @@ public class LoadProfile extends HttpServlet {
                     }
                 }
                 replyObj.add("rackWeight", rackWeightObj);
+                
+            } else {
+                JsonObject rackWeightObj = new JsonObject();
+
+                JsonObject rackOne = new JsonObject();
+                rackOne.addProperty("weight", 0.0);
+
+                rackWeightObj.add("rackOne", gson.toJsonTree(rackOne));
+                replyObj.add("rackWeight", rackWeightObj);
             }
 
             // power consumption
@@ -79,6 +90,13 @@ public class LoadProfile extends HttpServlet {
                 JsonObject powerConsumptionObj = new JsonObject();
                 powerConsumptionObj.add("date", gson.toJsonTree(powerConsumption.getDate()));
                 powerConsumptionObj.addProperty("power", powerConsumption.getPower());
+
+                replyObj.add("powerConsumption", powerConsumptionObj);
+                
+            }else{
+                JsonObject powerConsumptionObj = new JsonObject();
+                powerConsumptionObj.add("date", gson.toJsonTree(new Date()));
+                powerConsumptionObj.addProperty("power", 0.0);
 
                 replyObj.add("powerConsumption", powerConsumptionObj);
             }
@@ -98,6 +116,14 @@ public class LoadProfile extends HttpServlet {
                 doorStatusObj.addProperty("isNowOpen", doorStatus.isIs_door_open());
 
                 replyObj.add("doorStatus", doorStatusObj);
+                
+            }else{
+                JsonObject doorStatusObj = new JsonObject();
+                doorStatusObj.add("date", gson.toJsonTree(new Date()));
+                doorStatusObj.addProperty("times", 0);
+                doorStatusObj.addProperty("isNowOpen", 0);
+
+                replyObj.add("doorStatus", doorStatusObj);
             }
 
             // food status
@@ -110,6 +136,12 @@ public class LoadProfile extends HttpServlet {
 
                 JsonObject foodStatusObj = new JsonObject();
                 foodStatusObj.addProperty("foodStatus", foodStatus.getFood_status());
+
+                replyObj.add("foodStatus", foodStatusObj);
+                
+            }else{
+                JsonObject foodStatusObj = new JsonObject();
+                foodStatusObj.addProperty("foodStatus", 0);
 
                 replyObj.add("foodStatus", foodStatusObj);
             }
@@ -126,13 +158,39 @@ public class LoadProfile extends HttpServlet {
                 tempreatureObj.addProperty("tempreature", tempreature.getTemp());
 
                 replyObj.add("tempreature", tempreatureObj);
+                
+            }else{
+                JsonObject tempreatureObj = new JsonObject();
+                tempreatureObj.addProperty("tempreature", 0.0);
+
+                replyObj.add("tempreature", tempreatureObj);
             }
 
-        }else{
+            // humidity
+            Criteria humidityCriteria = hibernateSession.createCriteria(Humidity.class);
+            humidityCriteria.add(Restrictions.eq("fridge", fridge));
+            humidityCriteria.setMaxResults(1);
+            Humidity humidity = (Humidity) humidityCriteria.uniqueResult();
+
+            if (humidity != null) {
+
+                JsonObject humidityObj = new JsonObject();
+                humidityObj.addProperty("humidity", humidity.getHumidity());
+
+                replyObj.add("humidity", humidityObj);
+                
+            }else{
+                JsonObject humidityObj = new JsonObject();
+                humidityObj.addProperty("humidity", 0.0);
+
+                replyObj.add("humidity", humidityObj);
+            }
+
+        } else {
             isSuccess = false;
         }
         hibernateSession.close();
-        
+
         Response_DTO response_DTO = new Response_DTO(isSuccess, gson.toJsonTree(replyObj));
         response.setContentType("application/json");
         response.getWriter().write(gson.toJson(response_DTO));
