@@ -209,7 +209,7 @@ export default function home() {
                     </View>
                 </View>
 
-                <Button text={"Turn OFF"} style={{height:70, width: "96%", backgroundColor: "#961a02",marginTop:50 }} func={changeFridgeStatus} />
+                <Button text={getButtonText} style={{height:70, width: "96%", backgroundColor: "#961a02",marginTop:50 }} func={changeFridgeStatus} />
             </View>
 
         </SafeAreaView>

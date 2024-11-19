@@ -154,6 +154,7 @@ public class Login extends HttpServlet {
         if (!isSuccess) {
             replyObj.addProperty("msg", message);
         }
+        replyObj.add("registered", gson.toJsonTree(fridge.getDatetime()));
 
         hibernateSession.close();
 

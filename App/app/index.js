@@ -88,6 +88,7 @@ export default function index() {
                 let obj = await response.json();
                 if (obj.isSuccess) {
                     await AsyncStorage.setItem("fridgeCode", JSON.stringify(fridgeCode));
+                    await AsyncStorage.setItem("registered", JSON.stringify(obj.data.registered));
 
                     router.replace("/home",{
                         state: JSON.stringify(obj.data)
