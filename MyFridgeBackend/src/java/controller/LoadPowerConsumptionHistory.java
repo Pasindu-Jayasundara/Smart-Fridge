@@ -8,6 +8,7 @@ import entity.Fridge;
 import entity.Power_consumption;
 import entity.Rack_weight;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -45,12 +46,13 @@ public class LoadPowerConsumptionHistory extends HttpServlet {
             
             if(!powerConsumptionList.isEmpty()){
                 
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 JsonArray jsonArray = new JsonArray();
                 for (Power_consumption power_consumption : powerConsumptionList) {
                     
-                    JsonObject jo = new JsonObject();
-                    jo.add("date", gson.toJsonTree(power_consumption.getDate()));
-                    jo.addProperty("power", power_consumption.getPower());
+                    JsonArray jo = new JsonArray();
+                    jo.add(gson.toJsonTree(sdf.format(power_consumption.getDate())));
+                    jo.add(power_consumption.getPower());
                     
                     jsonArray.add(jo);
                 }

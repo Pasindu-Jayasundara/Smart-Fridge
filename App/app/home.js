@@ -47,9 +47,9 @@ export default function home() {
         if (jsonData === "{}") {
             loadData()
         } else {
-            // setTimeout(() => {
-            //     loadData()
-            // }, 10000);
+            setTimeout(() => {
+                loadData()
+            }, 10000);
         }
 
     }, []);
@@ -81,7 +81,7 @@ export default function home() {
 
                 if (obj.isSuccess) {
 
-                    console.log(obj.data)
+                    // console.log(obj.data)
                     setTempreature(obj.data.tempreature.tempreature)
                     doorref.current = obj.data.doorStatus.isNowOpen
                     // console.log(obj.data.doorStatus.isNowOpen)
@@ -100,9 +100,9 @@ export default function home() {
                 }
             }
 
-            // setTimeout(() => {
-            //     loadData()
-            // }, 10000);
+            setTimeout(() => {
+                loadData()
+            }, 10000);
         } catch (error) {
             setShowCustomAlert(true);
             setCustomAlertText("Something Went Wrong");
