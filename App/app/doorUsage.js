@@ -49,7 +49,7 @@ export default function doorUsage() {
                 style={styles.chart}
             />
             <Text style={styles.text2}>Now:
-                {getNowDoor == true ? <Text style={[styles.label2, { color: "red" }]}>  Closed</Text> : <Text style={[styles.label2, { color: "#5BE12C" }]}>  Open</Text>}
+                {getNowDoor == true ? <Text style={[styles.label2, { color: "red" }]}>  Open</Text> : <Text style={[styles.label2, { color: "#5BE12C" }]}>  Closed</Text>}
             </Text>
             <Table borderStyle={{ borderWidth: 1, borderColor: '#c8e1ff' }} style={styles.table}>
                 <Row data={tableHead} style={styles.head} textStyle={styles.text} />

@@ -27,14 +27,14 @@ export default function home() {
     const [getCustomAlertText, setCustomAlertText] = useState("");
     const [getCustomAlertIcon, setCustomAlertIcon] = useState("");
 
-    const [getTempreature, setTempreature] = useState("");
-    const [getHumidity, setHumidity] = useState("");
-    const [getWeight, setWeight] = useState("");
-    const [getPowerUsage, setPowerUsage] = useState("");
-    const [getFoodStatus, setFoodStatus] = useState("");
-    const [getFridgeStatus, setFridgeStatus] = useState("");
+    const [getTempreature, setTempreature] = useState("00.00");
+    const [getHumidity, setHumidity] = useState("00.00");
+    const [getWeight, setWeight] = useState("00.00");
+    const [getPowerUsage, setPowerUsage] = useState("00.00");
+    const [getFoodStatus, setFoodStatus] = useState("00.00");
+    const [getFridgeStatus, setFridgeStatus] = useState("00.00");
 
-    const [getButtonText, setButtonText] = useState("");
+    const [getButtonText, setButtonText] = useState("Turn ON");
 
     const coderef = useRef(null)
     const [getCode, setCode] = useState(coderef.current);
@@ -47,9 +47,9 @@ export default function home() {
         if (jsonData === "{}") {
             loadData()
         } else {
-            setTimeout(() => {
-                loadData()
-            }, 10000);
+            // setTimeout(() => {
+            //     loadData()
+            // }, 10000);
         }
 
     }, []);
@@ -100,9 +100,9 @@ export default function home() {
                 }
             }
 
-            setTimeout(() => {
-                loadData()
-            }, 10000);
+            // setTimeout(() => {
+            //     loadData()
+            // }, 10000);
         } catch (error) {
             setShowCustomAlert(true);
             setCustomAlertText("Something Went Wrong");

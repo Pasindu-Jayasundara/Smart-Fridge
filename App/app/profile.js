@@ -20,6 +20,13 @@ export default function Profile() {
     const [getCustomAlertText, setCustomAlertText] = useState("");
     const [getCustomAlertIcon, setCustomAlertIcon] = useState("");
 
+    const b1tref = useRef("Ok")
+    const [getButton1Text, setButton1Text] = useState(b1tref.current);
+    const b2tref = useRef("Yes")
+    const [getButton2Text, setButton2Text] = useState(b2tref.current);
+    const bctref = useRef(1)
+    const [getAlertButtonCount, setAlertButtonCount] = useState(bctref.current);
+
     const [getButtonText, setButtonText] = useState("Update Password");
 
     useEffect(() => {
@@ -43,6 +50,7 @@ export default function Profile() {
     const [formData, setFormData] = useState({
         password: "",
         reTypePassword: "",
+        newPassword: ""
     });
 
     const handleInputChange = (name, value) => {
@@ -56,51 +64,87 @@ export default function Profile() {
 
         setButtonText("Wait ...");
 
-        const { reTypePassword, password } = formData;
+        const { password, reTypePassword, newPassword } = formData;
 
-        if (coderef.current.trim().length === 0) {
+        if (getCode == null) {
+            let code = await AsyncStorage.getItem("fridgeCode");
+            coderef.current = code
+            setCode(code)
+        }
 
-            setShowCustomAlert(true);
+        if (coderef.current.trim().length === 0 || coderef.current == null) {
+
             setCustomAlertText("Fridge Code is required");
             setCustomAlertIcon("❗");
 
             setButtonText("Update Password");
+
+            setAlertButtonCount(1)
+            setButton1Text("Ok")
+            setShowCustomAlert(true);
+
             return;
         }
 
         if (password.trim().length < 8) {
 
-            setShowCustomAlert(true);
             setCustomAlertText("Password must be between 8-20 letters");
             setCustomAlertIcon("❗");
 
             setButtonText("Update Password");
+
+            setAlertButtonCount(1)
+            setButton1Text("Ok")
+            setShowCustomAlert(true);
+
             return;
         }
 
         if (reTypePassword.trim().length < 8) {
 
-            setShowCustomAlert(true);
             setCustomAlertText("Re-Typed Password must be between 8-20 letters");
             setCustomAlertIcon("❗");
 
             setButtonText("Update Password");
+
+            setAlertButtonCount(1)
+            setButton1Text("Ok")
+            setShowCustomAlert(true);
+
             return;
         }
 
-        if (password.trim() != reTypePassword.trim()) {
+        if (newPassword.trim() != reTypePassword.trim()) {
 
-            setShowCustomAlert(true);
             setCustomAlertText("Password and Re-Typed Password must be same");
             setCustomAlertIcon("❗");
 
             setButtonText("Update Password");
+
+            setAlertButtonCount(1)
+            setButton1Text("Ok")
+            setShowCustomAlert(true);
+
+            return;
+        }
+
+        if (newPassword.trim() == password.trim()) {
+
+            setCustomAlertText("Old Password and New Password Cannot be same");
+            setCustomAlertIcon("❗");
+
+            setButtonText("Update Password");
+
+            setAlertButtonCount(1)
+            setButton1Text("Ok")
+            setShowCustomAlert(true);
+
             return;
         }
 
         let url = process.env.EXPO_PUBLIC_URL + "/UpdatePassword";
         let data = {
-            fridgeCode: coderef.current,
+            fridgeCode: JSON.parse(coderef.current),
             newPassword: reTypePassword,
             oldPassword: password
         };
@@ -121,31 +165,56 @@ export default function Profile() {
                 let obj = await response.json();
                 if (obj.isSuccess) {
 
-                    setShowCustomAlert(true);
                     setCustomAlertText(obj.data);
                     setCustomAlertIcon("✅");
                     setButtonText("Update Password");
 
-                } else {
+                    setAlertButtonCount(1)
+                    setButton1Text("Ok")
                     setShowCustomAlert(true);
+
+                    setFormData({
+                        password: "",
+                        reTypePassword: "",
+                        newPassword: ""
+                    })
+
+                } else {
                     setCustomAlertText(obj.data);
                     setCustomAlertIcon("❗");
-                    setButtonText("Register");
+                    setButtonText("Update Password");
+
+                    setAlertButtonCount(1)
+                    setButton1Text("Ok")
+
+                    setShowCustomAlert(true);
+
                 }
 
 
             } else {
-                setShowCustomAlert(true);
                 setCustomAlertText("Please Try Again Later");
                 setCustomAlertIcon("❗");
+
+                setAlertButtonCount(1)
+                setButton1Text("Ok")
+                setShowCustomAlert(true);
+
             }
         } catch (error) {
             console.log(error);
-            setShowCustomAlert(true);
             setCustomAlertText("Something Went Wrong");
             setCustomAlertIcon("❗");
+
+            setAlertButtonCount(1)
+            setButton1Text("Ok")
+            setShowCustomAlert(true);
+
         } finally {
             setButtonText("Update Password");
+            bctref.current = 2
+            b1tref.current = "No"
+            b2tref.current = "Yes"
         }
 
     }
@@ -155,6 +224,10 @@ export default function Profile() {
         setShowCustomAlert(true);
         setCustomAlertText("Are you sure you want to log out?");
         setCustomAlertIcon("❗");
+
+        setAlertButtonCount(2)
+        setButton1Text("No")
+        setButton2Text("Yes")
 
     }
 
@@ -180,11 +253,11 @@ export default function Profile() {
                         iconType: "text",
                         message: getCustomAlertText,
                         iconBgColor: "white",
-                        buttonCount: 2,
+                        buttonCount: bctref.current,
                         button1Color: "black",
-                        button1Text: "No",
+                        button1Text: b1tref.current,
                         button2Color: "red",
-                        button2Text: "Yes",
+                        button2Text: b2tref.current,
                         button1Func: () => { setShowCustomAlert(false) },
                         button2Func: logoutapproved
                     }
@@ -222,13 +295,14 @@ export default function Profile() {
             } open="one" duration="150" visible={true} arrow={false} >
 
                 <InputField params={{ lableText: "Old Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("password", value) }} />
-                <InputField params={{ lableText: "New Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("reTypePassword", value) }} />
+                <InputField params={{ lableText: "New Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("newPassword", value) }} />
+                <InputField params={{ lableText: "Re-type Password", inputMode: "text", secureTextEntry: true, func: (value) => handleInputChange("reTypePassword", value) }} />
 
                 <Button text={getButtonText} style={{ marginTop: 30, width: "100%", backgroundColor: "#0d5e18" }} func={updatePassword} />
 
             </Accordion>
 
-            <Button text={"Log out"} style={{ marginTop: 100, width: "100%", backgroundColor: "#ba0606", borderRadius: 10 }} func={logout} />
+            <Button text={"Log out"} style={{ marginTop: 40, width: "97%", backgroundColor: "#ba0606", borderRadius: 10, alignSelf: "center" }} func={logout} />
 
         </SafeAreaView>
     );

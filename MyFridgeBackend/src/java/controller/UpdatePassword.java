@@ -32,33 +32,37 @@ public class UpdatePassword extends HttpServlet {
         String message = "";
 
         Criteria fridgeCriteria = hibernateSession.createCriteria(Fridge.class);
-        fridgeCriteria.add(Restrictions.and(
-                Restrictions.eq("code", fridgeCode),
-                Restrictions.eq("password", oldPassword)
-        ));
+        fridgeCriteria.add(Restrictions.eq("code", fridgeCode));
         Fridge fridge = (Fridge) fridgeCriteria.uniqueResult();
 
         if (fridge != null) {
-
             StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
-            String encryptedPassword = passwordEncryptor.encryptPassword(newPassword);
-
-            if (passwordEncryptor.checkPassword(newPassword, fridge.getPassword())) {
+            if (passwordEncryptor.checkPassword(oldPassword, fridge.getPassword())) {
                 // correct!
-                isSuccess = false;
-                message = "New-Password Cannot be Same As Old-Password";
+
+                if (passwordEncryptor.checkPassword(newPassword, fridge.getPassword())) {
+                    // correct!
+                    isSuccess = false;
+                    message = "New-Password Cannot be Same As Old-Password";
+                } else {
+                    // bad login!\
+                    String encryptPassword = passwordEncryptor.encryptPassword(newPassword);
+                    fridge.setPassword(encryptPassword);
+
+                    hibernateSession.update(fridge);
+                    hibernateSession.beginTransaction().commit();
+
+                    message = "Password Update Success";
+                }
             } else {
                 // bad login!\
-                fridge.setPassword(encryptedPassword);
-
-                hibernateSession.update(fridge);
-                hibernateSession.beginTransaction().commit();
-                
-                message = "Password Update Success";
+                isSuccess = false;
+                message = "Invalid Credentials";
             }
 
         } else {
             isSuccess = false;
+            message = "Invalid Details";
         }
 
         hibernateSession.close();
