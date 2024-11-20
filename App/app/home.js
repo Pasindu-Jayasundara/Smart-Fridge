@@ -117,7 +117,7 @@ export default function home() {
 
         let url = process.env.EXPO_PUBLIC_URL + "/UpdateFridgeStatus";
         let data = {
-            fridgeCode: getCode,
+            fridgeCode: JSON.parse(getCode),
         };
 
         try {
