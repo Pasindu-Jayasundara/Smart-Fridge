@@ -19,6 +19,8 @@ export default function Layout() {
       <Stack.Screen name="registerGetData" options={{headerShown: false}}/>
       <Stack.Screen name="home" options={{headerShown: false}}/>
       <Stack.Screen name="profile" options={{headerShown: false}}/>
+      <Stack.Screen name="powerUsage" options={{headerShown: false}}/>
+      <Stack.Screen name="doorUsage" options={{headerShown: false}}/>
 
     </Stack>
   );

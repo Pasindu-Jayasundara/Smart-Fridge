@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, router, useGlobalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomAlert from "../components/CustomAlert";
 import { InputField } from "../components/InputField";
@@ -187,9 +187,9 @@ export default function home() {
                     </View>
 
                     <View style={styles.second}>
-                        <View style={[styles.dashboardItem, { width: "100%" }]}>
+                        <Pressable style={[styles.dashboardItem, { width: "100%" }]} onPress={()=>{router.push("/powerUsage")}}>
                             <PowerUsage usage={getPowerUsage} date={"2024/12/11"} />
-                        </View>
+                        </Pressable>
 
                         <View style={[styles.dashboardItem, { width: "100%" }]}>
                             <Weight weight={getWeight} />
@@ -202,9 +202,9 @@ export default function home() {
                 </View>
 
                 <View style={[styles.second, { flexDirection: "row", width: "100%", justifyContent: "space-evenly" }]}>
-                    <View style={[styles.dashboardItem, { width: "45%" }]}>
+                    <Pressable style={[styles.dashboardItem, { width: "45%" }]} onPress={()=>{router.push("/doorUsage")}}>
                         <DoorStatus status={doorref.current} />
-                    </View>
+                    </Pressable>
 
                     <View style={[styles.dashboardItem, { width: "45%" }]}>
                         <FoodStatus status={getFoodStatus} />

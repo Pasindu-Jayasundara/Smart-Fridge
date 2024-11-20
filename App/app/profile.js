@@ -195,7 +195,7 @@ export default function Profile() {
             <Text style={styles.email}>Fridge Code      : {JSON.parse(coderef.current)}</Text>
             <Text style={styles.email}>Registered On  : {JSON.parse(dateref.current)}</Text>
 
-            <Accordion title={"Change Password"} key={Math.random()} style={
+            <Accordion title={"Change Password"} style={
                 {
                     accordion: { marginTop: 60 },
                     heading: {
