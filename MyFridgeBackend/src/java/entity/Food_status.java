@@ -21,7 +21,7 @@ public class Food_status implements Serializable{
     private int id;
     
     @Column(name = "food_status",nullable = false,length = 45)
-    private String food_status;
+    private int food_status;
     
     @OneToOne
     @JoinColumn(name = "fridge_id")
@@ -38,11 +38,11 @@ public class Food_status implements Serializable{
         this.id = id;
     }
 
-    public String getFood_status() {
+    public int getFood_status() {
         return food_status;
     }
 
-    public void setFood_status(String food_status) {
+    public void setFood_status(int food_status) {
         this.food_status = food_status;
     }
 

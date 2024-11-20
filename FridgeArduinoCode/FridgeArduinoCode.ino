@@ -21,7 +21,6 @@
 
 
 // .................. weight sensor - start .................. //
-
 const int HX711_dout = 15;  //mcu > HX711 dout pin
 const int HX711_sck = 4;    //mcu > HX711 sck pin
 
@@ -219,7 +218,6 @@ void changeSavedCalFactor() {
   Serial.println("End change calibration value");
   Serial.println("***");
 }
-
 // .................. weight sensor - end .................. //
 
 
@@ -255,7 +253,11 @@ void calculatePowerUsage(void* vParameters) {
 
     // Energy = Power * Time
     // Time = delay in seconds * total number of samples (convert to hours)
-    energy = average_voltage * current * ((sample_count * 0.5) / 3600.0);
+    if(energy != 0.0){
+      energy += average_voltage * current * ((sample_count * 0.5) / 3600.0);
+    }else{
+      energy = average_voltage * current * ((sample_count * 0.5) / 3600.0);
+    }
 
     Serial.print("Energy Usage (Wh) = ");
     Serial.println(energy, 2);
@@ -264,6 +266,43 @@ void calculatePowerUsage(void* vParameters) {
   }
 }
 // .................. voltage sensor - end .................. //
+
+
+// .................. current sensor - start .................. //
+const int sensorPin = 27;  // Pin connected to the ACS712 sensor
+const float VREF = 3.3;    // Reference voltage of esp32
+const int ADC_RESOLUTION = 1024; // ADC resolution (10-bit)
+const float ACS712_SENSITIVITY = 0.185; // Sensitivity in V/A (e.g., 185 mV/A for 5A module)
+
+int rawValue = 0;          // Raw ADC value
+float voltage = 0;         // Voltage from sensor
+// float current = 0;         // Calculated current
+
+void calculateCurrentUsage(void* vParameters){
+  while(true){
+
+    // Read the raw value from the sensor
+    rawValue = analogRead(sensorPin);
+
+    // Convert raw value to voltage
+    voltage = (rawValue * VREF) / ADC_RESOLUTION;
+
+    // Calculate current (in Amperes)
+    current = (voltage - VREF / 2) / ACS712_SENSITIVITY;
+
+    // Print the results
+    // Serial.print("Raw Value: ");
+    // Serial.print(rawValue);
+    // Serial.print(" | Voltage: ");
+    // Serial.print(voltage, 3);
+    Serial.print(" V | Current: ");
+    Serial.print(current, 3);
+    Serial.println(" A");
+
+    vTaskDelay(500 / portTICK_PERIOD_MS);  // FreeRTOS delay, non-blocking
+  }
+}
+// .................. current sensor - end .................. //
 
 
 // .................. door sensor - start .................. //
@@ -316,6 +355,22 @@ void humidityAndTemperature(void* vParameters) {
   }
 }
 // .................. humidity & tempreature sensor - end .................. //
+
+
+// .................. gas sensor - start .................. //
+int sensorValue;
+int digitalValue;
+
+void gasSensor(void* vParameters){
+  while(true){
+
+    sensorValue = analogRead(12); // read analog input pin 0
+    digitalValue = digitalRead(5);
+
+    vTaskDelay(3000 / portTICK_PERIOD_MS);  // Wait 3 seconds
+  }
+}
+// .................. gas sensor - end .................. //
 
 
 // .................. display - start .................. //
@@ -424,6 +479,27 @@ void displayData(void* vParameters) {
     }
     display.display();
     vTaskDelay(3000 / portTICK_PERIOD_MS);
+
+    // gas display
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setCursor(0, 0);
+    display.print("Smart Fridge");
+    display.setTextSize(1);
+    display.setCursor(0, 35);
+    display.print("Food Quality: ");
+    display.setTextSize(2);
+    display.setCursor(0, 45);
+    if(sensorValue >= 400 && sensorValue <750){
+      display.print("Middle");
+    }else if(sensorValue <= 750){
+      display.print("Going Bad...");
+    }else{
+      display.print("Good");
+    }
+    display.display();
+
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
   }
 }
 // .................. display - end .................. //
@@ -480,7 +556,7 @@ void loadPowerUsage(){
     boolean isSuccess = responseObject["isSuccess"];
     if (isSuccess) {
 
-      energy = responseObject["data"].toFloat();
+      energy = (float)(responseObject["data"].operator double());
 
     } else {
       Serial.println(responseObject["data"]);
@@ -495,13 +571,13 @@ void loadPowerUsage(){
 // .................. load power usage - end .................. //
 
 
-
 void setup() {
   Serial.begin(115200);
 
   pinMode(16, INPUT_PULLUP);  // door sensor + pin
   pinMode(22, INPUT_PULLUP);  // dht11
   pinMode(18, OUTPUT);        // turn on
+  pinMode(5, INPUT); // gas sensor digital pin
 
   //display
   setupDisplay();
@@ -570,16 +646,27 @@ void setup() {
     0             // Core ID (set to 0 or 1)
   );
 
-  // Task 6 => client
-  // xTaskCreatePinnedToCore(
-  //   client,    // Task function
-  //   "client",  // Task name
-  //   2048,      // Stack size
-  //   NULL,      // Parameter
-  //   3,         // Priority
-  //   NULL,      // Task handle (NULL if not used)
-  //   1          // Core ID (set to 0 or 1)
-  // );
+  // // Task 6 => gas sensor
+  xTaskCreatePinnedToCore(
+    gasSensor,    // Task function
+    "gasSensor",  // Task name
+    2048,      // Stack size
+    NULL,      // Parameter
+    1,         // Priority
+    NULL,      // Task handle (NULL if not used)
+    1          // Core ID (set to 0 or 1)
+  );
+
+  // // Task 7 => current sensor
+  xTaskCreatePinnedToCore(
+    calculateCurrentUsage,    // Task function
+    "calculateCurrentUsage",  // Task name
+    2048,      // Stack size
+    NULL,      // Parameter
+    1,         // Priority
+    NULL,      // Task handle (NULL if not used)
+    0          // Core ID (set to 0 or 1)
+  );
 }
 
 void loop() {
@@ -587,7 +674,7 @@ void loop() {
   JSONVar jsonObject;
   jsonObject["fridgeCode"] = "22620";
   jsonObject["doorStatus"] = doorState;
-  jsonObject["foodStatus"] = "50";
+  jsonObject["foodStatus"] = sensorValue;
   jsonObject["temperature"] = temperature;
   jsonObject["humidity"] = humidity;
   jsonObject["weight"] = weightValue;
@@ -630,4 +717,6 @@ void loop() {
   }
 
   request.end();
+  delay(3000);
+
 }

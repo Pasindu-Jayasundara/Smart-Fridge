@@ -86,7 +86,7 @@ public class Register extends HttpServlet {
             
             // food
             Food_status newFoodStatus = new Food_status();
-            newFoodStatus.setFood_status("0");
+            newFoodStatus.setFood_status(0);
             newFoodStatus.setFridge(newFridge);
             
             hibernateSession.save(newFoodStatus);

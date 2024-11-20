@@ -79,7 +79,7 @@ public class FromArduino extends HttpServlet {
             foodStatusCriteria.add(Restrictions.eq("fridge", fridge));
             Food_status fs = (Food_status) foodStatusCriteria.uniqueResult();
 
-            fs.setFood_status(foodStatus);
+            fs.setFood_status(Integer.parseInt(foodStatus));
             hibernateSession.update(fs);
 
             // power consumption
