@@ -1,15 +1,20 @@
 package controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
+import entity.Door_status;
+import entity.Food_status;
 import entity.Fridge;
+import entity.Humidity;
 import entity.Power_consumption;
+import entity.Rack_number;
 import entity.Rack_weight;
+import entity.Tempreature;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.List;
+import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,8 +26,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
-@WebServlet(name = "LoadPowerConsumptionHistory", urlPatterns = {"/LoadPowerConsumptionHistory"})
-public class LoadPowerConsumptionHistory extends HttpServlet {
+@WebServlet(name = "LoadPowerUsageToArduino", urlPatterns = {"/LoadPowerUsageToArduino"})
+public class LoadPowerUsageToArduino extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -31,46 +36,44 @@ public class LoadPowerConsumptionHistory extends HttpServlet {
 
         Gson gson = new Gson();
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
-        JsonObject replyObj = new JsonObject();
 
-        boolean isSuccess = true;
+        boolean isSuccess = false;
 
         Criteria fridgeCriteria = hibernateSession.createCriteria(Fridge.class);
         fridgeCriteria.add(Restrictions.eq("code", fridgeCode));
         Fridge fridge = (Fridge) fridgeCriteria.uniqueResult();
 
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        double usage = 0.0;
+
         if (fridge != null) {
 
+            // power consumption
             Criteria powerConsumptionCriteria = hibernateSession.createCriteria(Power_consumption.class);
             powerConsumptionCriteria.add(Restrictions.eq("fridge", fridge));
             powerConsumptionCriteria.addOrder(Order.desc("date"));
-            List<Power_consumption> powerConsumptionList = powerConsumptionCriteria.list();
+            powerConsumptionCriteria.setMaxResults(1);
+            Power_consumption powerConsumption = (Power_consumption) powerConsumptionCriteria.uniqueResult();
 
-            if (!powerConsumptionList.isEmpty()) {
+            if (powerConsumption != null) {
 
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                JsonArray jsonArray = new JsonArray();
-                for (Power_consumption power_consumption : powerConsumptionList) {
-
-                    JsonArray jo = new JsonArray();
-                    jo.add(gson.toJsonTree(sdf.format(power_consumption.getDate())));
-                    jo.add(power_consumption.getPower());
-
-                    jsonArray.add(jo);
+                if (sdf.format(powerConsumption.getDate()).equals(sdf.format(date))) {
+                    usage = powerConsumption.getPower();
                 }
-                replyObj.add("array", jsonArray);
+
             }
 
-        } else {
-            isSuccess = false;
+            isSuccess = true;
+
         }
 
         hibernateSession.close();
 
-        Response_DTO response_DTO = new Response_DTO(isSuccess, gson.toJsonTree(replyObj));
+        Response_DTO response_DTO = new Response_DTO(isSuccess, gson.toJsonTree(usage));
         response.setContentType("application/json");
         response.getWriter().write(gson.toJson(response_DTO));
 
     }
-
 }

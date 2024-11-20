@@ -456,65 +456,43 @@ void setupWifi() {
 // .................. wifi - end .................. //
 
 
-// .................. client - start .................. //
-// void client(void* vParameters) {
-//   while (true) {
-//     boolean requestInProgress = false;
+// .................. load power usage - start .................. //
+void loadPowerUsage(){
 
-//     if (!requestInProgress) {
-//       requestInProgress = true;
+  JSONVar jsonObject;
+  jsonObject["fridgeCode"] = "22620";
 
-//       // JSONVar jsonObject;
-//       // jsonObject["fridgeCode"] = "22620";
-//       // jsonObject["doorStatus"] = doorState;
-//       // jsonObject["foodStatus"] = "50";
-//       // jsonObject["temperature"] = temperature;
-//       // jsonObject["humidity"] = humidity;
-//       // jsonObject["weight"] = weightValue;
-//       // jsonObject["powerUsage"] = energy;
+  String jsonString = JSON.stringify(jsonObject);
 
-//       // String jsonString = JSON.stringify(jsonObject);
+  HTTPClient request = HTTPClient();
+  request.begin("https://redbird-suitable-conversely.ngrok-free.app/MyFridgeBackend/LoadPowerUsageToArduino");
+  request.addHeader("Content-Type", "application/json");
 
-//       // HTTPClient request = HTTPClient();
-//       // request.begin("https://redbird-suitable-conversely.ngrok-free.app/MyFridgeBackend/FromArduino");
-//       // request.addHeader("Content-Type", "application/json");
+  int status = request.POST(jsonString);
 
-//       // int status = request.POST(jsonString);
+  if (status > 0) {
 
-//       // if (status > 0 && status == HTTP_CODE_OK) {
+    if(status == HTTP_CODE_OK){
 
-//       //   String responseJson = request.getString();
-//       //   JSONVar responseObject = JSON.parse(responseJson);
+    String responseJson = request.getString();
+    JSONVar responseObject = JSON.parse(responseJson);
 
-//       //   boolean isSuccess = responseObject["isSuccess"];
-//       //   if (isSuccess) {
+    boolean isSuccess = responseObject["isSuccess"];
+    if (isSuccess) {
 
-//       //     int turnOn = responseObject["data"];
+      energy = responseObject["data"].toFloat();
 
-//       //     if (turnOn == 1) {
-//       //       digitalWrite(18, HIGH);
-//       //     } else if (turnOn == 0) {
-//       //       digitalWrite(18, LOW);
-//       //     } else {
-//       //       Serial.println(turnOn);
-//       //     }
+    } else {
+      Serial.println(responseObject["data"]);
+    }
+    }
+  } else {
+    Serial.println("Request Error");
+  }
 
-//       //   }else{
-//       //     Serial.println(responseObject["data"]);
-//       //   }
-
-//       // } else {
-//       //   Serial.println("Request Error");
-//       // }
-
-//       // request.end();
-//       requestInProgress = false;
-//     }
-
-//     vTaskDelay(3000 / portTICK_PERIOD_MS);  // Wait before retrying
-//   }
-// }
-// .................. client - end .................. //
+  request.end();
+}
+// .................. load power usage - end .................. //
 
 
 
@@ -533,6 +511,9 @@ void setup() {
 
   // wifi
   setupWifi();
+
+  // load power usage
+  loadPowerUsage();
 
   // Task 1 => calculate power usage
   xTaskCreatePinnedToCore(

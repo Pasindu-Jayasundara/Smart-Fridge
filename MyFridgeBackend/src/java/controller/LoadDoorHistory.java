@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 @WebServlet(name = "LoadDoorHistory", urlPatterns = {"/LoadDoorHistory"})
@@ -41,6 +42,7 @@ public class LoadDoorHistory extends HttpServlet {
 
             Criteria doorCriteria = hibernateSession.createCriteria(Door_status.class);
             doorCriteria.add(Restrictions.eq("fridge", fridge));
+            doorCriteria.addOrder(Order.desc("date"));
             List<Door_status> doorStatusList = doorCriteria.list();
 
             if (!doorStatusList.isEmpty()) {
