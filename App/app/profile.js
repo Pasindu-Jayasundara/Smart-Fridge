@@ -17,6 +17,7 @@ export default function Profile() {
     const [getDate, setDate] = useState(dateref.current);
 
     const [getShowCustomAlert, setShowCustomAlert] = useState(false);
+    const [getShowCustomAlert2, setShowCustomAlert2] = useState(false);
     const [getCustomAlertText, setCustomAlertText] = useState("");
     const [getCustomAlertIcon, setCustomAlertIcon] = useState("");
 
@@ -79,9 +80,7 @@ export default function Profile() {
 
             setButtonText("Update Password");
 
-            setAlertButtonCount(1)
-            setButton1Text("Ok")
-            setShowCustomAlert(true);
+            setShowCustomAlert2(true);
 
             return;
         }
@@ -93,9 +92,7 @@ export default function Profile() {
 
             setButtonText("Update Password");
 
-            setAlertButtonCount(1)
-            setButton1Text("Ok")
-            setShowCustomAlert(true);
+            setShowCustomAlert2(true);
 
             return;
         }
@@ -107,9 +104,7 @@ export default function Profile() {
 
             setButtonText("Update Password");
 
-            setAlertButtonCount(1)
-            setButton1Text("Ok")
-            setShowCustomAlert(true);
+            setShowCustomAlert2(true);
 
             return;
         }
@@ -121,9 +116,7 @@ export default function Profile() {
 
             setButtonText("Update Password");
 
-            setAlertButtonCount(1)
-            setButton1Text("Ok")
-            setShowCustomAlert(true);
+            setShowCustomAlert2(true);
 
             return;
         }
@@ -135,9 +128,7 @@ export default function Profile() {
 
             setButtonText("Update Password");
 
-            setAlertButtonCount(1)
-            setButton1Text("Ok")
-            setShowCustomAlert(true);
+            setShowCustomAlert2(true);
 
             return;
         }
@@ -169,9 +160,7 @@ export default function Profile() {
                     setCustomAlertIcon("✅");
                     setButtonText("Update Password");
 
-                    setAlertButtonCount(1)
-                    setButton1Text("Ok")
-                    setShowCustomAlert(true);
+                    setShowCustomAlert2(true);
 
                     setFormData({
                         password: "",
@@ -184,10 +173,7 @@ export default function Profile() {
                     setCustomAlertIcon("❗");
                     setButtonText("Update Password");
 
-                    setAlertButtonCount(1)
-                    setButton1Text("Ok")
-
-                    setShowCustomAlert(true);
+                    setShowCustomAlert2(true);
 
                 }
 
@@ -196,9 +182,7 @@ export default function Profile() {
                 setCustomAlertText("Please Try Again Later");
                 setCustomAlertIcon("❗");
 
-                setAlertButtonCount(1)
-                setButton1Text("Ok")
-                setShowCustomAlert(true);
+                setShowCustomAlert2(true);
 
             }
         } catch (error) {
@@ -206,15 +190,10 @@ export default function Profile() {
             setCustomAlertText("Something Went Wrong");
             setCustomAlertIcon("❗");
 
-            setAlertButtonCount(1)
-            setButton1Text("Ok")
-            setShowCustomAlert(true);
+            setShowCustomAlert2(true);
 
         } finally {
             setButtonText("Update Password");
-            bctref.current = 2
-            b1tref.current = "No"
-            b2tref.current = "Yes"
         }
 
     }
@@ -253,12 +232,30 @@ export default function Profile() {
                         iconType: "text",
                         message: getCustomAlertText,
                         iconBgColor: "white",
-                        buttonCount: bctref.current,
+                        buttonCount: 2,
                         button1Color: "black",
-                        button1Text: b1tref.current,
+                        button1Text: "No",
                         button2Color: "red",
-                        button2Text: b2tref.current,
+                        button2Text: "Ok",
                         button1Func: () => { setShowCustomAlert(false) },
+                        button2Func: logoutapproved
+                    }
+                } />
+            ) : null}
+
+            {getShowCustomAlert2 ? (
+                <CustomAlert params={
+                    {
+                        icon: getCustomAlertIcon,
+                        iconType: "text",
+                        message: getCustomAlertText,
+                        iconBgColor: "white",
+                        buttonCount: 1,
+                        button1Color: "black",
+                        button1Text: "Ok",
+                        button2Color: "red",
+                        button2Text: "Ok",
+                        button1Func: () => { setShowCustomAlert2(false) },
                         button2Func: logoutapproved
                     }
                 } />
