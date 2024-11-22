@@ -364,8 +364,11 @@ int digitalValue;
 void gasSensor(void* vParameters){
   while(true){
 
-    sensorValue = analogRead(12); // read analog input pin 0
+    sensorValue = analogRead(35); // read analog input pin 0
     digitalValue = digitalRead(5);
+
+    Serial.print("Gas: ");
+    Serial.println(sensorValue);
 
     vTaskDelay(3000 / portTICK_PERIOD_MS);  // Wait 3 seconds
   }
