@@ -83,8 +83,6 @@ export default function index() {
 
             if (response.ok) {
 
-                console.log("response: ", response);
-
                 let obj = await response.json();
                 if (obj.isSuccess) {
                     await AsyncStorage.setItem("fridgeCode", JSON.stringify(fridgeCode));
@@ -95,7 +93,7 @@ export default function index() {
                     });
                 } else {
                     setShowCustomAlert(true);
-                    setCustomAlertText(obj.data);
+                    setCustomAlertText(obj.data.msg);
                     setCustomAlertIcon("❗");
                     setButtonText("Register");
                 }
@@ -107,7 +105,6 @@ export default function index() {
                 setCustomAlertIcon("❗");
             }
         } catch (error) {
-            console.log(error);
             setShowCustomAlert(true);
             setCustomAlertText("Something Went Wrong");
             setCustomAlertIcon("❗");
@@ -129,7 +126,7 @@ export default function index() {
                         iconBgColor: "white",
                         buttonCount: 1,
                         button1Color: "orange",
-                        button1Text: "Update",
+                        button1Text: "Update Details",
                         button2Color: "green",
                         button2Text: "OK",
                         button1Func: () => { setShowCustomAlert(false) },

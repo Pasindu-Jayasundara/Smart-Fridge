@@ -5,12 +5,12 @@ export default function FoodStatus({status}) {
     return(
         <View style={styles.container}>
             <Text style={styles.label}>Food : </Text>
-            {status > 45 && status < 90 ? (
-                <Text style={[styles.label2, { color: "orange" }]}>{status}</Text>
-            ) : status > 90 ? (
-                <Text style={[styles.label2, { color: "red" }]}>{status}</Text>
+            {status > 1800 && status < 2300 ? (
+                <Text style={[styles.label2, { color: "orange" }]}>Middle</Text>
+            ) : status > 2300 ? (//90
+                <Text style={[styles.label2, { color: "red" }]}>Bad</Text>
             ) : (
-                <Text style={[styles.label2, { color: "#5BE12C" }]}>{status}</Text>
+                <Text style={[styles.label2, { color: "#5BE12C" }]}>Good</Text>
             )}
         </View>
     )

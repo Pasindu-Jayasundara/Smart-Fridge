@@ -241,26 +241,45 @@ float energy = 0.0;  // watt-hours (Wh)
 
 void calculatePowerUsage(void* vParameters) {
   while (true) {
+    // Read ADC value
     adc_value = analogRead(analogPin);
-    adc_voltage = (adc_value * ref_voltage) / 4095.0;  // 12-bit ADC resolution
+
+    // Calculate ADC voltage
+    adc_voltage = (adc_value * ref_voltage) / 4095.0; // ESP32 uses 12-bit ADC (0-4095)
+
+    // Calculate input voltage using voltage divider formula
     in_voltage = adc_voltage * (R1 + R2) / R2;
 
+    // Ensure voltage is non-negative
+    if (in_voltage < 0) {
+      in_voltage = 0;
+    }
+
+    // Update total voltage and sample count
     total_voltage += in_voltage;
     sample_count++;
 
+    // Calculate average voltage
     average_voltage = total_voltage / sample_count;
+
+    // Calculate instantaneous power
     power = in_voltage * current;
 
-    // Energy = Power * Time
-    // Time = delay in seconds * total number of samples (convert to hours)
-    if(energy != 0.0){
-      energy += average_voltage * current * ((sample_count * 0.5) / 3600.0);
-    }else{
-      energy = average_voltage * current * ((sample_count * 0.5) / 3600.0);
+    // Ensure power is non-negative
+    if (power > 0) {
+      // Calculate energy: Power * Time (convert delay to hours)
+      energy += power * (0.5 / 3600.0); // 0.5 seconds delay converted to hours
     }
 
-    Serial.print("Energy Usage (Wh) = ");
-    Serial.println(energy, 2);
+    // Print values to Serial Monitor
+    Serial.print("ADC Voltage: ");
+    Serial.println(adc_voltage, 3);
+    Serial.print("Input Voltage: ");
+    Serial.println(in_voltage, 3);
+    Serial.print("Instantaneous Power (W): ");
+    Serial.println(power, 3);
+    Serial.print("Energy Usage (Wh): ");
+    Serial.println(energy, 3);
 
     vTaskDelay(500 / portTICK_PERIOD_MS);  // FreeRTOS delay, non-blocking
   }
@@ -432,20 +451,20 @@ void displayData(void* vParameters) {
     vTaskDelay(3000 / portTICK_PERIOD_MS);
 
     // Weight display
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setCursor(0, 0);
-    display.print("Smart Fridge");
-    display.setTextSize(1);
-    display.setCursor(0, 35);
-    display.print("Weight: ");
-    display.setTextSize(2);
-    display.setCursor(0, 45);
-    display.print(weightValue);
-    display.print(" Kg");
-    display.display();
+    // display.clearDisplay();
+    // display.setTextSize(1);
+    // display.setCursor(0, 0);
+    // display.print("Smart Fridge");
+    // display.setTextSize(1);
+    // display.setCursor(0, 35);
+    // display.print("Weight: ");
+    // display.setTextSize(2);
+    // display.setCursor(0, 45);
+    // display.print(weightValue);
+    // display.print(" Kg");
+    // display.display();
 
-    vTaskDelay(3000 / portTICK_PERIOD_MS);
+    // vTaskDelay(3000 / portTICK_PERIOD_MS);
 
     // Power Consumption display
     display.clearDisplay();
@@ -586,13 +605,13 @@ void setup() {
   setupDisplay();
 
   // weight
-  weight();
+  // weight();
 
   // wifi
   setupWifi();
 
   // load power usage
-  loadPowerUsage();
+  // loadPowerUsage();
 
   // Task 1 => calculate power usage
   xTaskCreatePinnedToCore(
@@ -639,15 +658,15 @@ void setup() {
   );
 
   // Task 5 => weight
-  xTaskCreatePinnedToCore(
-    getWeight,    // Task function
-    "getWeight",  // Task name
-    2048,         // Stack size
-    NULL,         // Parameter
-    1,            // Priority
-    NULL,         // Task handle (NULL if not used)
-    0             // Core ID (set to 0 or 1)
-  );
+  // xTaskCreatePinnedToCore(
+  //   getWeight,    // Task function
+  //   "getWeight",  // Task name
+  //   2048,         // Stack size
+  //   NULL,         // Parameter
+  //   1,            // Priority
+  //   NULL,         // Task handle (NULL if not used)
+  //   0             // Core ID (set to 0 or 1)
+  // );
 
   // // Task 6 => gas sensor
   xTaskCreatePinnedToCore(
@@ -661,15 +680,15 @@ void setup() {
   );
 
   // // Task 7 => current sensor
-  xTaskCreatePinnedToCore(
-    calculateCurrentUsage,    // Task function
-    "calculateCurrentUsage",  // Task name
-    2048,      // Stack size
-    NULL,      // Parameter
-    1,         // Priority
-    NULL,      // Task handle (NULL if not used)
-    0          // Core ID (set to 0 or 1)
-  );
+  // xTaskCreatePinnedToCore(
+  //   calculateCurrentUsage,    // Task function
+  //   "calculateCurrentUsage",  // Task name
+  //   2048,      // Stack size
+  //   NULL,      // Parameter
+  //   1,         // Priority
+  //   NULL,      // Task handle (NULL if not used)
+  //   0          // Core ID (set to 0 or 1)
+  // );
 }
 
 void loop() {

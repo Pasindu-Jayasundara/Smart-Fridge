@@ -7,7 +7,7 @@ export default function PowerUsage({usage,date}) {
     return (
         <View style={styles.container}>
             <Text style={styles.label}>Power Usage <Icon name="info-circle" size={15} color="grey" /></Text>
-            <Text style={styles.label2}>{parseFloat(usage).toFixed(2)} W</Text>
+            <Text style={styles.label2}>{parseFloat(usage).toFixed(2)} Wh</Text>
         </View>
     );
 }

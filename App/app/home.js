@@ -34,7 +34,8 @@ export default function home() {
     const [getFoodStatus, setFoodStatus] = useState("00.00");
     const [getFridgeStatus, setFridgeStatus] = useState("00.00");
 
-    const [getButtonText, setButtonText] = useState("Turn ON");
+    const [getButtonText, setButtonText] = useState("Stop Data Fetching");
+    const [getFetchStatus, setFetchStatus] = useState(true);
 
     const coderef = useRef(null)
     const [getCode, setCode] = useState(coderef.current);
@@ -91,7 +92,7 @@ export default function home() {
                     setWeight(obj.data.rackWeight.rackOne.weight)
 
                     setFridgeStatus(obj.data.fridgeStatus)
-                    setButtonText(obj.data.fridgeStatus == 1 ? "Turn OFF" : "Turn ON")
+                    setButtonText(obj.data.fridgeStatus == 1 ? "Stop Data Fetching" : "Start Data Fetching")
 
                 } else {
                     setShowCustomAlert(true);
@@ -107,7 +108,7 @@ export default function home() {
             setShowCustomAlert(true);
             setCustomAlertText("Something Went Wrong");
             setCustomAlertIcon("❗");
-        }finally{
+        } finally {
             SplashScreen.hideAsync();
         }
 
@@ -185,16 +186,21 @@ export default function home() {
                     <View style={[styles.dashboardItem, { paddingBlock: 4 }]}>
                         <Tempreature temp={getTempreature} />
                     </View>
-
-                    <View style={styles.second}>
-                        <Pressable style={[styles.dashboardItem, { width: "100%" }]} onPress={()=>{router.push("/powerUsage")}}>
+                    <View style={[styles.dashboardItem, { paddingBlock: 4 }]}>
+                    <Pressable style={[styles.dashboardItem, { width: "100%" }]} onPress={()=>{router.push("/powerUsage")}}>
                             <PowerUsage usage={getPowerUsage} date={"2024/12/11"} />
                         </Pressable>
-
-                        <View style={[styles.dashboardItem, { width: "100%" }]}>
-                            <Weight weight={getWeight} />
-                        </View>
                     </View>
+
+                    {/* <View style={styles.second}>
+                        <Pressable style={[styles.dashboardItem, { width: "100%" }]} onPress={()=>{router.push("/powerUsage")}}>
+                            <PowerUsage usage={getPowerUsage} date={"2024/12/11"} />
+                        </Pressable> */}
+
+                        {/* <View style={[styles.dashboardItem, { width: "100%" }]}>
+                            <Weight weight={getWeight} />
+                        </View> */}
+                    {/* </View> */}
                 </View>
 
                 <View style={[styles.dashboardItem, { width: "96%" }]}>
@@ -211,7 +217,7 @@ export default function home() {
                     </View>
                 </View>
 
-                <Button text={getButtonText} style={{height:70, width: "96%", backgroundColor: "#961a02",marginTop:50 }} func={changeFridgeStatus} />
+                {/* <Button text={getButtonText} style={{height:70, width: "96%", backgroundColor: "#961a02",marginTop:50 }} func={changeFridgeStatus} /> */}
             </View>
 
         </SafeAreaView>
